@@ -1,15 +1,15 @@
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    firstname TEXT NOT NULL,
-    lastname TEXT NOT NULL,
-    username TEXT NOT NULL UNIQUE,
-    club_staff BOOLEAN UNIQUE,
-    email TEXT UNIQUE,
-    role BOOLEAN DEFAULT 0,
+    first_name TEXT NOT NULL,
+    last_name TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    login TEXT NOT NULL UNIQUE,
+    images TEXT, -- JSON array of image URLs 
+    club_staff BOOLEAN DEFAULT 0, -- Indicates if the user is a club staff member
+    role BOOLEAN DEFAULT 0 , -- 0 means a number user , 1 is staff
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
-
 
 -- Events table
 CREATE TABLE IF NOT EXISTS events (
