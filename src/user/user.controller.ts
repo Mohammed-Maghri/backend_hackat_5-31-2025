@@ -8,9 +8,10 @@ export const getUser = (req: FastifyRequest, resp: FastifyReply) => {
 
 export const getUserData = async (req: FastifyRequest, resp: FastifyReply) => {
   try {
-    console.log(' -----< ' , req.headers)
+    console.log(" -----< ", req.headers);
     await req.jwtVerify();
     const userData: user_authData = await req.jwtDecode();
+    // const result = userAccountCreation(userData)
     return resp.status(200).send(userData);
   } catch (e) {
     console.log(" ----<> catched Error", e);

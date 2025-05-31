@@ -3,7 +3,7 @@ import { registerRoutes } from "./registration.js";
 import dotenv from "dotenv";
 dotenv.config();
 const fastify = Fastify({
-    logger: false,
+    logger: true,
 });
 const PORT = parseInt(process.env.PORT || "8000", 10);
 registerRoutes(fastify);

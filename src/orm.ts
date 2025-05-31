@@ -134,7 +134,7 @@ const Orm_db: Orm = {
   insertion: insertion,
   selection: selection,
   update: update,
-  deletion : deletion
+  deletion: deletion,
 };
 
 export { Orm_db };

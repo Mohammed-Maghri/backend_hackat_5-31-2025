@@ -4,9 +4,10 @@ export const getUser = (req, resp) => {
 };
 export const getUserData = async (req, resp) => {
     try {
-        console.log(' -----< ', req.headers);
+        console.log(" -----< ", req.headers);
         await req.jwtVerify();
         const userData = await req.jwtDecode();
+        // const result = userAccountCreation(userData)
         return resp.status(200).send(userData);
     }
     catch (e) {

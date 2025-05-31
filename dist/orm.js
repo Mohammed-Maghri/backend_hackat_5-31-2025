@@ -50,6 +50,6 @@ const Orm_db = {
     insertion: insertion,
     selection: selection,
     update: update,
-    deletion: deletion
+    deletion: deletion,
 };
 export { Orm_db };
