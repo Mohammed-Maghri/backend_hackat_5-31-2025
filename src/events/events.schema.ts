@@ -57,45 +57,23 @@ export const eventCreationSchema = z.object({
 
 export type eventCreationType = z.infer<typeof eventCreationSchema>;
 
-const isoDateOptional = z
-  .string()
-  .refine(
-    (val) => {
-      if (!val) return true; // Allow empty/undefined
-      const date = new Date(val);
-      return !isNaN(date.getTime());
-    },
-    { message: "Invalid date format. Must be ISO 8601." }
-  )
-  .optional();
-
-// Final Query Params Schema
 export const eventParamsSchema = z.object({
-  category_id: z
-    .string()
-    .optional()
-    .transform((val) => (val !== undefined ? Number(val) : undefined))
-    .refine((val) => val === undefined || !isNaN(val), {
-      message: "Invalid category ID",
-    }),
-
+  category_id: z.number().optional(),
   title: z
     .string()
     .optional()
-    .refine((val) => val === undefined || val.trim().length > 0, {
-      message: "Title must not be empty if provided",
+    .refine((val) => !val || val.trim().length === 0, {
+      message: "Invalid Title ",
     }),
-
-  start_date: isoDateOptional,
-  end_date: isoDateOptional,
-
-  page: z
+  start_date: z
     .string()
-    .optional()
-    .transform((val) => (val !== undefined ? Number(val) : 1))
-    .refine((val) => val === undefined || !isNaN(val), {
-      message: "Page must be a number",
-    }),
+    .datetime("Invalid start Date, please provide a valid ISO Date")
+    .optional(),
+  end_date: z
+    .string()
+    .datetime("Invalid End Date, please provide a valid ISO Date")
+    .optional(),
+  page: z.string().optional(),
 });
 
 export type eventParamsType = z.infer<typeof eventParamsSchema>;

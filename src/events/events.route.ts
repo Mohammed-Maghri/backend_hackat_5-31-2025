@@ -17,7 +17,7 @@ export const eventRoutes = (fastify: FastifyInstance) => {
     method: "GET",
     url: "/event",
     schema : {
-      params : zodToJsonSchema(eventParamsSchema),
+      querystring : zodToJsonSchema(eventParamsSchema),
     },
     handler: eventEndPoint,
   });
