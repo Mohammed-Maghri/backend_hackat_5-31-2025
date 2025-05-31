@@ -23,7 +23,6 @@ CREATE TABLE IF NOT EXISTS events (
     category_id INTEGER DEFAULT NULL,
     creator_id INTEGER NOT NULL,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-    -- Foreign Keys with Constraint Names
     CONSTRAINT fk_events_creator
         FOREIGN KEY (creator_id)
         REFERENCES users(id)
