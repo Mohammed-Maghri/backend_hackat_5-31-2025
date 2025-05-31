@@ -33,7 +33,7 @@ export const eventCreationSchema = z.object({
     .enum(["upcoming", "completed", "cancelled", "pending"])
     .optional()
     .default("pending"),
-    
+
   category_id: z
     .number()
     .int()
@@ -56,3 +56,46 @@ export const eventCreationSchema = z.object({
 });
 
 export type eventCreationType = z.infer<typeof eventCreationSchema>;
+
+const isoDateOptional = z
+  .string()
+  .refine(
+    (val) => {
+      if (!val) return true; // Allow empty/undefined
+      const date = new Date(val);
+      return !isNaN(date.getTime());
+    },
+    { message: "Invalid date format. Must be ISO 8601." }
+  )
+  .optional();
+
+// Final Query Params Schema
+export const eventParamsSchema = z.object({
+  category_id: z
+    .string()
+    .optional()
+    .transform((val) => (val !== undefined ? Number(val) : undefined))
+    .refine((val) => val === undefined || !isNaN(val), {
+      message: "Invalid category ID",
+    }),
+
+  title: z
+    .string()
+    .optional()
+    .refine((val) => val === undefined || val.trim().length > 0, {
+      message: "Title must not be empty if provided",
+    }),
+
+  start_date: isoDateOptional,
+  end_date: isoDateOptional,
+
+  page: z
+    .string()
+    .optional()
+    .transform((val) => (val !== undefined ? Number(val) : 1))
+    .refine((val) => val === undefined || !isNaN(val), {
+      message: "Page must be a number",
+    }),
+});
+
+export type eventParamsType = z.infer<typeof eventParamsSchema>;

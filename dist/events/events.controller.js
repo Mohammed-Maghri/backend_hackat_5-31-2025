@@ -1,4 +1,5 @@
 import { Orm_db } from "../orm.js";
+import { shouldSearch } from "../helpers/searchParser.js";
 export const eventCreation = async (req, resp) => {
     const eventData = req.body;
     console.log("The event Data is -------->", eventData);
@@ -20,6 +21,10 @@ export const eventCreation = async (req, resp) => {
             colums_name: ["id"],
             command_instraction: `WHERE login = '${user.login}'`,
         }));
+        if (userId.length === 0) {
+            console.log("No existing user");
+            return resp.badRequest("User not found");
+        }
         console.log(userId, "userId of the user");
         const result = await Orm_db.insertion({
             server: req.server,
@@ -59,5 +64,29 @@ export const eventCreation = async (req, resp) => {
         console.error("Error inserting event data:", e);
         resp.status(500).send({ error: "Failed to insert event data" });
         return;
+    }
+};
+export const eventEndPoint = async (req, res) => {
+    try {
+        console.log("testing api call");
+        const geterOject = req.query;
+        const queryFilter = {
+            title: geterOject.title || "",
+            category_id: geterOject.category_id || "",
+            start_date: geterOject.start_date || "",
+            end_date: geterOject.end_date || "",
+            page: geterOject.page || "",
+        };
+        return res.status(200).send({
+            events: await Orm_db.selection({
+                server: req.server,
+                table_name: "events",
+                colums_name: ["*"],
+                command_instraction: shouldSearch(queryFilter),
+            }),
+        });
+    }
+    catch (e) {
+        return res.status(400).send({ status: "Error !" });
     }
 };

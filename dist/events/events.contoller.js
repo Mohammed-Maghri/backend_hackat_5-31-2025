@@ -9,12 +9,12 @@ const shouldSearch = (queryFilter) => {
     if (queryFilter.category_id !== "") {
         if (search_ToAppend !== "")
             search_ToAppend += " and ";
-        search_ToAppend += `date == "${queryFilter.category_id}"`;
+        search_ToAppend += `category_id == "${queryFilter.category_id}"`;
     }
     if (queryFilter.start_date !== "") {
         if (search_ToAppend !== "")
             search_ToAppend += " and ";
-        search_ToAppend += `created_at >= "${queryFilter.start_date}"`;
+        search_ToAppend += `date >= "${queryFilter.start_date}"`;
     }
     if (queryFilter.end_date !== "") {
         if (search_ToAppend !== "")

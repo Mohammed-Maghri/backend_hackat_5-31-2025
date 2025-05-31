@@ -1,5 +1,4 @@
 import { getUserData, getUser } from "./user.controller.js";
-import { eventEndPoint } from "../events/events.contoller.js";
 export const userRoutes = (fastify) => {
     //define user Routes
     fastify.route({
@@ -20,10 +19,5 @@ export const userRoutes = (fastify) => {
         //   },
         // },
         handler: getUserData,
-    });
-    fastify.route({
-        method: "GET",
-        url: "/event",
-        handler: eventEndPoint,
     });
 };
