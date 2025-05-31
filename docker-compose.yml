@@ -1,0 +1,7 @@
+services:
+  fastify-backend:
+    ports:
+      - "8000:8000"
+    build : .
+    volumes:
+      - .:/app
