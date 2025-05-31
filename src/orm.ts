@@ -47,12 +47,6 @@ const insertion = async ({
         [table_name, colums_values.toString()]
       );
     } else {
-      console.log(
-        `insert into ${table_name} (${colums_name.toString()}) values (${colums_name
-          .map(() => " ? ")
-          .toString()})`
-      );
-      console.log(colums_values.toString(), "teeeeest");
       return await server.db.run(
         `insert into ${table_name} (${colums_name.toString()}) values (${colums_name
           .map(() => " ? ")

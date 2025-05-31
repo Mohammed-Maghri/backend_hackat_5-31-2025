@@ -1,5 +1,5 @@
 import { FastifyRequest, FastifyReply } from "fastify";
-import { eventTypes } from "../types/eventType.js";
+import { eventTypes, registerEventTypes } from "../types/eventType.js";
 import { Orm_db } from "../orm.js";
 import { queryObject } from "../types/queryType.js";
 import { user_authData } from "../types/userAuthData.js";
@@ -104,7 +104,15 @@ export const eventRegister = async (req: FastifyRequest, res: FastifyReply) => {
   try {
     await req.jwtVerify();
     const user: user_authData = (await req.jwtDecode()) as user_authData; // get user data from JWT
-    console.log("------> This -<<<   ", user);
+    const eventInfos: registerEventTypes = req.body as registerEventTypes;
+    console.log("eventInfos", eventInfos);
+    await Orm_db.insertion({
+      server: req.server,
+      table_name: "registrations",
+      colums_name: ["user_id", "event_id"],
+      colums_values: [user.id, eventInfos.event_id],
+      command_instraction: null,
+    });
   } catch (err) {
     console.error("JWT verification failed:", err);
     return res.status(401).send({ error: "Unauthorized" });

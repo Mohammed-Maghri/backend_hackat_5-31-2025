@@ -63,7 +63,6 @@ const auth_intra = async (req: FastifyRequest, res: FastifyReply) => {
       colums_name: ["id"],
       command_instraction: `where login = '${userAuth.login}'`,
     }) as idlogin[];
-    console.log(' ====>? ' , user_id[0].id)
     const usedTok = await res.jwtSign({
       id: user_id[0].id,
       first_name: userAuth.first_name,

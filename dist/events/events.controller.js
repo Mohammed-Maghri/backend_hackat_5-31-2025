@@ -94,7 +94,15 @@ export const eventRegister = async (req, res) => {
     try {
         await req.jwtVerify();
         const user = (await req.jwtDecode()); // get user data from JWT
-        console.log("------> This -<<<   ", user);
+        const eventInfos = req.body;
+        console.log("eventInfos", eventInfos);
+        await Orm_db.insertion({
+            server: req.server,
+            table_name: "registrations",
+            colums_name: ["user_id", "event_id"],
+            colums_values: [user.id, eventInfos.event_id],
+            command_instraction: null,
+        });
     }
     catch (err) {
         console.error("JWT verification failed:", err);
