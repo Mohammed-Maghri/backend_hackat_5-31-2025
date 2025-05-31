@@ -28,7 +28,7 @@ const deletion = async ({ server, condition, table_name }: deletion_data) => {
   try {
     return await server.db.run(`delete from ${table_name} ${condition}`);
   } catch (e) {
-    return e;
+    return -1;
   }
 };
 const insertion = async ({
@@ -47,12 +47,6 @@ const insertion = async ({
         [table_name, colums_values.toString()]
       );
     } else {
-      console.log(
-        `insert into ${table_name} (${colums_name.toString()}) values (${colums_name
-          .map(() => " ? ")
-          .toString()})`
-      );
-      console.log(colums_values.toString(), "teeeeest");
       return await server.db.run(
         `insert into ${table_name} (${colums_name.toString()}) values (${colums_name
           .map(() => " ? ")

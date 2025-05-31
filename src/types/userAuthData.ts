@@ -7,3 +7,23 @@ export interface user_authData {
   images: string;
   staff: boolean;
 }
+
+export const staffUsers: string[] = [
+  "youbihi",
+  "mmaghri",
+  "ymbsout",
+  "abablil",
+];
+
+export interface Token_type {
+  access_token: string;
+  refresh_token: string;
+}
+
+export interface code_extract {
+  code: string;
+}
+
+export interface idlogin {
+  id: number;
+}

@@ -45,7 +45,6 @@ const auth_intra = async (req, res) => {
             colums_name: ["id"],
             command_instraction: `where login = '${userAuth.login}'`,
         });
-        console.log(' ====>? ', user_id[0].id);
         const usedTok = await res.jwtSign({
             id: user_id[0].id,
             first_name: userAuth.first_name,

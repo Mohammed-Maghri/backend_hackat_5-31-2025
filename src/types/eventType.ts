@@ -11,3 +11,7 @@ export interface eventTypes {
   creator_id: number;
   slots: number;
 }
+
+export interface registerEventTypes {
+  eventId: number;
+}

@@ -66,3 +66,9 @@ export const eventParamsSchema = z.object({
         .optional(),
     page: z.string().optional(),
 });
+export const headerEventRegister = z.object({
+    Authorization: z.string(),
+});
+export const bodyEventRegister = z.object({
+    eventId: z.number(),
+});
