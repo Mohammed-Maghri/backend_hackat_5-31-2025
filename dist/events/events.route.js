@@ -1,7 +1,7 @@
 import { eventCreation } from "./events.controller.js";
 import { eventCreationSchema, eventParamsSchema } from "./events.schema.js";
 import zodToJsonSchema from "zod-to-json-schema";
-import { eventEndPoint } from "./events.controller.js";
+import { eventEndPoint, eventRegister } from "./events.controller.js";
 export const eventRoutes = (fastify) => {
     fastify.route({
         method: "POST",
@@ -18,5 +18,26 @@ export const eventRoutes = (fastify) => {
             querystring: zodToJsonSchema(eventParamsSchema),
         },
         handler: eventEndPoint,
+    });
+    fastify.route({
+        method: "POST",
+        url: "/event/register",
+        schema: {
+            headers: {
+                type: "object",
+                properties: {
+                    Authorization: { type: "string" }
+                },
+                required: ["Authorization"]
+            },
+            body: {
+                type: "object",
+                properties: {
+                    eventId: { type: "string" }
+                },
+                required: ["eventId"]
+            }
+        },
+        handler: eventRegister
     });
 };

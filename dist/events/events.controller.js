@@ -90,3 +90,15 @@ export const eventEndPoint = async (req, res) => {
         return res.status(400).send({ status: "Error !" });
     }
 };
+export const eventRegister = async (req, res) => {
+    try {
+        await req.jwtVerify();
+        const user = (await req.jwtDecode()); // get user data from JWT
+        console.log("------> This -<<<   ", user);
+    }
+    catch (err) {
+        console.error("JWT verification failed:", err);
+        return res.status(401).send({ error: "Unauthorized" });
+    }
+    res.status(200).send({ logs: "eventRegister endpoint hit !" });
+};
