@@ -28,7 +28,7 @@ const deletion = async ({ server, condition, table_name }: deletion_data) => {
   try {
     return await server.db.run(`delete from ${table_name} ${condition}`);
   } catch (e) {
-    return e;
+    return -1;
   }
 };
 const insertion = async ({
@@ -55,7 +55,7 @@ const insertion = async ({
       );
     }
   } catch (e) {
-    return e;
+    return -1;
   }
 };
 

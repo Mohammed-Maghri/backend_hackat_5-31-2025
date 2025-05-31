@@ -13,5 +13,5 @@ export interface eventTypes {
 }
 
 export interface registerEventTypes {
-  event_id: number;
+  eventId: number;
 }
