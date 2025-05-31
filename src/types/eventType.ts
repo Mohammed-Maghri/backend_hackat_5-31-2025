@@ -15,3 +15,9 @@ export interface eventTypes {
 export interface registerEventTypes {
   eventId: number;
 }
+export interface eventQueryVerify {
+  slots: number | undefined;
+  status: string | undefined;
+  latitude: number | undefined;
+  longitude: number | undefined;
+};
