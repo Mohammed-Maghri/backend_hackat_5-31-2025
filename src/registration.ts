@@ -19,8 +19,6 @@ const registerRoutes = (fastify: FastifyInstance) => {
   fastify.register(Auth_intra);
   fastify.register(redirect_url);
   fastify.register(userRoutes);
-
-
 };
 
 export { registerRoutes };

@@ -1,7 +1,7 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { Envs } from "../types/Envs.js";
 import { encrypte_token } from "../helpers/encryption.js";
-
+import { user_authData } from "../types/userAuthData.js";
 interface Token_type {
   access_token: string;
   refresh_token: string;
@@ -9,15 +9,6 @@ interface Token_type {
 
 interface code_extract {
   code: string;
-}
-
-interface user_authData {
-  email: string;
-  login: string;
-  first_name: string;
-  last_name: string;
-  images: string;
-  staff: boolean;
 }
 
 const auth_intra = async (req: FastifyRequest, res: FastifyReply) => {
