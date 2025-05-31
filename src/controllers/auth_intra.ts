@@ -23,7 +23,6 @@ interface user_authData {
 const auth_intra = async (req: FastifyRequest, res: FastifyReply) => {
   try {
     const code = (JSON.parse(req.body as string) as code_extract).code;
-    console.log("|" + code);
     const Toke = new URLSearchParams({
       grant_type: "authorization_code",
       client_id: req.server.getEnvs<Envs>().client_id,
@@ -58,11 +57,16 @@ const auth_intra = async (req: FastifyRequest, res: FastifyReply) => {
       last_name: data.last_name,
       email: data.email,
       login: data.login,
-      staff: data.staff,
+      staff: data?.staff || false,
       images: data.image.versions.large,
     } as user_authData;
-    console.log(' ---> ' , userAuth)
     const usedTok = await res.jwtSign({
+      first_name: userAuth.first_name,
+      last_name: userAuth.last_name,
+      email: userAuth.email,
+      login: userAuth.login,
+      staff: userAuth?.staff || false,
+      images: userAuth.images,
       access_token: encrypte_token({
         message: keys.access_token,
         key: req.server.getEnvs<Envs>().encryption_key,
@@ -73,11 +77,11 @@ const auth_intra = async (req: FastifyRequest, res: FastifyReply) => {
       }),
     });
 
-    return res.status(200).send(JSON.stringify("test"));
+    return res.status(200).send(JSON.stringify(usedTok));
   } catch (e) {
-    console.log("Tesss !!!!");
     return res.status(400).send({ error: "Unauthorized User !" });
   }
 };
 
+export type { user_authData };
 export { auth_intra };

@@ -9,7 +9,7 @@ export const Auth_intra = (server: FastifyInstance) => {
     //   body : {
     //     type : 'object' ,
     //     properties : {
-    //       code : {type : 'string'}
+    //       code : {type :'string'}
     //     },
     //     required : ['code']
     //   }

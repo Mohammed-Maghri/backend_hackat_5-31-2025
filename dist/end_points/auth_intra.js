@@ -7,7 +7,7 @@ export const Auth_intra = (server) => {
         //   body : {
         //     type : 'object' ,
         //     properties : {
-        //       code : {type : 'string'}
+        //       code : {type :'string'}
         //     },
         //     required : ['code']
         //   }

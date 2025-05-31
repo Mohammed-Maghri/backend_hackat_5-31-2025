@@ -2,8 +2,8 @@ const url = async (req, res) => {
     try {
         const code = req.query;
         console.log(' ------< ', code.code);
-        const red = new URL("mrboha://auth?token=asdasdasd");
-        const validateQuery = await fetch("  https://5a8d-197-230-30-146.ngrok-free.app/auth/intra", {
+        // const red = new URL("mrboha://auth?token=asdasdasd");
+        const validateQuery = await fetch(`${req.getEnvs().backend_endpoint}/auth/intra`, {
             method: "POST",
             body: JSON.stringify({ code: code.code })
         });

@@ -9,9 +9,9 @@ const url = async (req: FastifyRequest, res: FastifyReply) => {
   try {
     const code: query = req.query as query;
     console.log(' ------< ' , code.code)
-    const red = new URL("mrboha://auth?token=asdasdasd");
+    // const red = new URL("mrboha://auth?token=asdasdasd");
     const validateQuery = await fetch(
-      "  https://5a8d-197-230-30-146.ngrok-free.app/auth/intra",
+      `${req.getEnvs<Envs>().backend_endpoint}/auth/intra`,
       {
         method: "POST",
         body : JSON.stringify({code : code.code})
