@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS events (
     longitude REAL NOT NULL,
     status TEXT DEFAULT 'pending', -- 'upcoming' | 'completed' | 'cancelled' | 'pending'
     category_id INTEGER DEFAULT NULL,
+    pictures TEXT DEFAULT "", -- should implement pictures logic
     creator_id INTEGER NOT NULL,
     slots INTEGER NOT NULL,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
@@ -52,4 +53,16 @@ CREATE TABLE IF NOT EXISTS registrations (
         FOREIGN KEY (event_id)
         REFERENCES events(id)
         ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS feedback (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    event_id INTEGER NOT NULL,
+    rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    comment TEXT NOT NULL,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    -- Foreign keys
+    CONSTRAINT fk_feedback_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_feedback_event FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
 );
