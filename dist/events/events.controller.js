@@ -2,10 +2,9 @@ import { Orm_db } from "../orm.js";
 import { shouldSearch } from "../helpers/searchParser.js";
 export const eventCreation = async (req, resp) => {
     const eventData = req.body;
-    console.log("The event Data is -------->", eventData);
     try {
         await req.jwtVerify();
-        const user = (await req.jwtDecode()); // get user data from JWT
+        const user = (await req.jwtDecode());
         const existingEvent = (await Orm_db.selection({
             server: req.server,
             table_name: "events",
@@ -15,17 +14,16 @@ export const eventCreation = async (req, resp) => {
         if (existingEvent.length > 0) {
             return resp.badRequest("Event with the same title and date already exists.");
         }
-        const userId = (await Orm_db.selection({
+        const userDbData = (await Orm_db.selection({
             server: req.server,
             table_name: "users",
-            colums_name: ["id"],
+            colums_name: ["*"],
             command_instraction: `WHERE login = '${user.login}'`,
         }));
-        if (userId.length === 0) {
+        if (userDbData.length === 0) {
             console.log("No existing user");
             return resp.badRequest("User not found");
         }
-        console.log(userId, "userId of the user");
         const result = await Orm_db.insertion({
             server: req.server,
             table_name: "events",
@@ -50,9 +48,9 @@ export const eventCreation = async (req, resp) => {
                 eventData.image_url || "",
                 eventData.latitude,
                 eventData.longitude,
-                eventData.status,
+                user.staff || userDbData[0].club_staff ? "upcoming" : eventData.status,
                 eventData.category_id,
-                userId,
+                userDbData[0].id,
                 eventData.slots,
             ],
             command_instraction: null,
@@ -95,18 +93,70 @@ export const eventRegister = async (req, res) => {
         await req.jwtVerify();
         const user = (await req.jwtDecode()); // get user data from JWT
         const eventInfos = req.body;
-        console.log("eventInfos", eventInfos);
-        await Orm_db.insertion({
+        const CheckingError = await Orm_db.insertion({
             server: req.server,
             table_name: "registrations",
             colums_name: ["user_id", "event_id"],
-            colums_values: [user.id, eventInfos.event_id],
+            colums_values: [user.id, eventInfos.eventId.toString()],
             command_instraction: null,
         });
+        if (CheckingError === -1) {
+            return res.status(400).send({ error: "Registration failed" });
+        }
     }
     catch (err) {
         console.error("JWT verification failed:", err);
         return res.status(401).send({ error: "Unauthorized" });
     }
     res.status(200).send({ logs: "eventRegister endpoint hit !" });
+};
+export const eventUnregister = async (req, res) => {
+    try {
+        await req.jwtVerify();
+        const user = (await req.jwtDecode());
+        const eventInfos = req.body;
+        const CheckingError = await Orm_db.deletion({
+            server: req.server,
+            table_name: "registrations",
+            condition: `WHERE user_id = "${user.id}" AND event_id = "${eventInfos.eventId}"`,
+        });
+        if (CheckingError === -1) {
+            return res.status(400).send({ error: "Registration deletion failed" });
+        }
+    }
+    catch (err) {
+        console.error("JWT verification failed:", err);
+        return res.status(401).send({ error: "Unauthorized" });
+    }
+    res.status(200).send({ logs: "eventDelete endpoint hit !" });
+};
+export const adminEventVerify = async (req, res) => {
+    try {
+        await req.jwtVerify();
+        const user = (await req.jwtDecode());
+        if (!user.staff)
+            return res.status(403).send({ logs: "Forbidden" });
+    }
+    catch (err) {
+        console.error("JWT verification failed:", err);
+        return res.status(401).send({ error: "Unauthorized" });
+    }
+};
+export const adminListUnverifiedEvents = async (req, res) => {
+    try {
+        await req.jwtVerify();
+        const user = (await req.jwtDecode());
+        // if (!user.staff) return res.status(403).send({ logs: "Forbidden" });
+        const unverifiedEvents = await Orm_db.selection({
+            server: req.server,
+            table_name: "events",
+            colums_name: ["*"],
+            command_instraction: "WHERE status = 'pending'",
+        });
+        return res.status(200).send({ events: unverifiedEvents });
+    }
+    catch (err) {
+        console.error("Error fetching unverified events:", err);
+        return res.status(500).send({ error: "Failed to fetch unverified events" });
+    }
 };

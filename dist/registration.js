@@ -8,6 +8,7 @@ import fastifySensible from "@fastify/sensible";
 import { envPlugin } from "./plugins/env.js";
 import jwtFromThere from "./plugins/jwt.js";
 import { feedBackroutes } from "./feedback/feedback.route.js";
+import { adminRoutes } from "./admin/admin.route.js";
 const registerRoutes = (fastify) => {
     fastify.register(fpSqlitePlugin, {
         dbFilename: "src/database/database.db",
@@ -21,5 +22,6 @@ const registerRoutes = (fastify) => {
     fastify.register(userRoutes);
     fastify.register(eventRoutes);
     fastify.register(feedBackroutes);
+    fastify.register(adminRoutes);
 };
 export { registerRoutes };
