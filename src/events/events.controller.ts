@@ -99,3 +99,15 @@ export const eventEndPoint = async (req: FastifyRequest, res: FastifyReply) => {
     return res.status(400).send({ status: "Error !" });
   }
 };
+
+export const eventRegister = async (req: FastifyRequest, res: FastifyReply) => {
+  try {
+    await req.jwtVerify();
+    const user: user_authData = (await req.jwtDecode()) as user_authData; // get user data from JWT
+    console.log("------> This -<<<   ", user);
+  } catch (err) {
+    console.error("JWT verification failed:", err);
+    return res.status(401).send({ error: "Unauthorized" });
+  }
+  res.status(200).send({ logs: "eventRegister endpoint hit !" });
+};

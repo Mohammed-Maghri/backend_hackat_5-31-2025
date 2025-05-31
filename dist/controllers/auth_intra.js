@@ -1,4 +1,6 @@
 import { encrypte_token } from "../helpers/encryption.js";
+import { userAccountCreation } from "../utils/userCreation.js";
+import { Orm_db } from "../orm.js";
 const auth_intra = async (req, res) => {
     try {
         const code = req.body.code;
@@ -36,7 +38,16 @@ const auth_intra = async (req, res) => {
             staff: data?.staff || false,
             images: data.image.versions.large,
         };
+        await userAccountCreation(req, userAuth);
+        const user_id = await Orm_db.selection({
+            server: req.server,
+            table_name: "users",
+            colums_name: ["id"],
+            command_instraction: `where login = '${userAuth.login}'`,
+        });
+        console.log(' ====>? ', user_id[0].id);
         const usedTok = await res.jwtSign({
+            id: user_id[0].id,
             first_name: userAuth.first_name,
             last_name: userAuth.last_name,
             email: userAuth.email,
