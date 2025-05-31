@@ -12,6 +12,7 @@ import {
   eventRegister,
   eventUnregister,
   adminListUnverifiedEvents,
+  adminEventVerify,
 } from "./events.controller.js";
 
 export const eventRoutes = (fastify: FastifyInstance) => {
@@ -40,7 +41,7 @@ export const eventRoutes = (fastify: FastifyInstance) => {
     },
     handler: eventRegister,
   });
-  
+
   fastify.route({
     method: "POST",
     url: "/event/unregister",
@@ -55,5 +56,11 @@ export const eventRoutes = (fastify: FastifyInstance) => {
     method: "GET",
     url: "/event/admin/unverifiedevents",
     handler: adminListUnverifiedEvents,
+  });
+  
+  fastify.route({
+    method: "GET",
+    url: "/event/admin/modify",
+    handler: adminEventVerify,
   });
 };

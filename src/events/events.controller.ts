@@ -1,16 +1,14 @@
 import { FastifyRequest, FastifyReply } from "fastify";
-import { eventTypes, registerEventTypes,  } from "../types/eventType.js";
+import { eventTypes, registerEventTypes } from "../types/eventType.js";
 import { Orm_db } from "../orm.js";
-import { queryObject } from "../types/queryType.js";
+import {
+  queryObject,
+  eventQueryVerify,
+  objectReturnAdminUpdate,
+} from "../types/queryType.js";
 import { user_authData } from "../types/userAuthData.js";
 import { shouldSearch } from "../helpers/searchParser.js";
 
-interface eventQueryVerify {
-  slots: number | undefined;
-  status: string | undefined;
-  latitude: number | undefined;
-  longitude: number | undefined;
-};
 
 export const eventCreation = async (
   req: FastifyRequest,
@@ -82,6 +80,7 @@ export const eventCreation = async (
   }
 };
 
+
 export const eventEndPoint = async (req: FastifyRequest, res: FastifyReply) => {
   try {
     console.log("testing api call");
@@ -106,6 +105,7 @@ export const eventEndPoint = async (req: FastifyRequest, res: FastifyReply) => {
   }
 };
 
+
 export const eventRegister = async (req: FastifyRequest, res: FastifyReply) => {
   try {
     await req.jwtVerify();
@@ -128,7 +128,11 @@ export const eventRegister = async (req: FastifyRequest, res: FastifyReply) => {
   res.status(200).send({ logs: "eventRegister endpoint hit !" });
 };
 
-export const eventUnregister  = async (req: FastifyRequest, res: FastifyReply) => {
+
+export const eventUnregister = async (
+  req: FastifyRequest,
+  res: FastifyReply
+) => {
   try {
     await req.jwtVerify();
     const user: user_authData = (await req.jwtDecode()) as user_authData;
@@ -148,6 +152,37 @@ export const eventUnregister  = async (req: FastifyRequest, res: FastifyReply) =
   res.status(200).send({ logs: "eventDelete endpoint hit !" });
 };
 
+
+const eventQueryVerify = (eventInfo: eventQueryVerify) => {
+  let colums_append_array: string[] = [];
+  let colums_values_append_array: string[] = [];
+  if (eventInfo.status !== "") {
+    colums_append_array = [...colums_append_array, "status"];
+    colums_values_append_array.push(eventInfo.status);
+  }
+  if (eventInfo.slots !== "") {
+    colums_append_array = [...colums_append_array, "slots"];
+    colums_values_append_array.push(eventInfo.slots.toString());
+  }
+  if (eventInfo.latitude !== "") {
+    colums_append_array = [...colums_append_array, "latitude"];
+    colums_values_append_array.push(eventInfo.latitude.toString());
+  }
+  if (eventInfo.longitude !== "") {
+    colums_append_array = [...colums_append_array, "longitude"];
+    colums_values_append_array.push(eventInfo.longitude.toString());
+  }
+  if (colums_append_array.length > 0) {
+    return {
+      columns_name: colums_append_array,
+      columns_values: colums_values_append_array,
+    } as objectReturnAdminUpdate;
+  } else return null;
+};
+
+// Tomorrow, we will implement the adminEventVerify function
+// Everythin is ready, we just need to implement the query and Insert it with the orm_db
+// and the response 
 export const adminEventVerify = async (
   req: FastifyRequest,
   res: FastifyReply
@@ -155,12 +190,33 @@ export const adminEventVerify = async (
   try {
     await req.jwtVerify();
     const user: user_authData = (await req.jwtDecode()) as user_authData;
-    if (!user.staff) return res.status(403).send({ logs: "Forbidden" });
+    const eventInfos: eventQueryVerify = {
+      slots: ((req.query as eventQueryVerify).slots as number) || "",
+      status: ((req.query as eventQueryVerify).status as string) || "",
+      latitude: ((req.query as eventQueryVerify).latitude as number) || "",
+      longitude: ((req.query as eventQueryVerify).longitude as number) || "",
+    };
+    const objectVerify: objectReturnAdminUpdate | null =
+      eventQueryVerify(eventInfos);
+    console.log(" --_< objectVerify>_-- ", objectVerify);
+    // const result = await Orm_db.update({
+    //   server: req.server,
+    //   table_name: "events",
+    //   colums_name: query.colums_name,
+    //   colums_values: query.colums_values,
+    //   command_instraction: `WHERE id = ${req.query.eventId}`,
+    // });
+    // if (result === -1) {
+    //   return res.status(400).send({ error: "Event verification failed" });
+    // }
+    // if (!user.staff) return res.status(403).send({ logs: "Forbidden" });
+    return res.status(200).send({ logs: "adminEventVerify endpoint hit !" });
   } catch (err) {
     console.error("JWT verification failed:", err);
     return res.status(401).send({ error: "Unauthorized" });
   }
 };
+
 
 export const adminListUnverifiedEvents = async (
   req: FastifyRequest,
