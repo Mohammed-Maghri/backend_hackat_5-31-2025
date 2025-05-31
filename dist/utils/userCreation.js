@@ -1,6 +1,18 @@
 import { Orm_db } from "../orm.js";
 // Function to create a user account based on the provided user data
 export const userAccountCreation = async (request, userData) => {
+    const userExists = (await Orm_db.selection({
+        server: request.server,
+        table_name: "users",
+        colums_name: ["login"],
+        command_instraction: `where login = '${userData.login}'`,
+    }));
+    console.log(userExists, "userExists");
+    if (userExists.length > 0) {
+        console.log("User already exists, skipping account creation.");
+        return;
+    }
+    console.log("Creating user account...");
     const result = await Orm_db.insertion({
         server: request.server,
         table_name: "users",
@@ -24,5 +36,4 @@ export const userAccountCreation = async (request, userData) => {
         ],
         command_instraction: null,
     });
-    console.log(result, "result of query");
 };
