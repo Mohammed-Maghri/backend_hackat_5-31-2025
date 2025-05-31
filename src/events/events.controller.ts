@@ -1,16 +1,16 @@
 import { FastifyRequest, FastifyReply } from "fastify";
-import { eventTypes, registerEventTypes,  } from "../types/eventType.js";
+import { eventTypes, registerEventTypes } from "../types/eventType.js";
 import { Orm_db } from "../orm.js";
 import { queryObject } from "../types/queryType.js";
 import { user_authData } from "../types/userAuthData.js";
 import { shouldSearch } from "../helpers/searchParser.js";
-
+import { userDatabaseSchema } from "../types/userAuthData.js";
 interface eventQueryVerify {
   slots: number | undefined;
   status: string | undefined;
   latitude: number | undefined;
   longitude: number | undefined;
-};
+}
 
 export const eventCreation = async (
   req: FastifyRequest,
@@ -31,17 +31,17 @@ export const eventCreation = async (
         "Event with the same title and date already exists."
       );
     }
-    const userId = (await Orm_db.selection({
+    const userDbData = (await Orm_db.selection({
       server: req.server,
       table_name: "users",
-      colums_name: ["id"],
+      colums_name: ["*"],
       command_instraction: `WHERE login = '${user.login}'`,
-    })) as number | [];
-    if ((userId as []).length === 0) {
+    })) as userDatabaseSchema[];
+
+    if (userDbData.length === 0) {
       console.log("No existing user");
       return resp.badRequest("User not found");
     }
-    console.log(userId, "userId of the user");
     const result = await Orm_db.insertion({
       server: req.server,
       table_name: "events",
@@ -66,9 +66,9 @@ export const eventCreation = async (
         eventData.image_url || "",
         eventData.latitude,
         eventData.longitude,
-        eventData.status,
+        user.staff || userDbData[0].club_staff ? "upcoming" : eventData.status,
         eventData.category_id,
-        userId as number,
+        userDbData[0].id,
         eventData.slots,
       ],
       command_instraction: null,
@@ -128,7 +128,10 @@ export const eventRegister = async (req: FastifyRequest, res: FastifyReply) => {
   res.status(200).send({ logs: "eventRegister endpoint hit !" });
 };
 
-export const eventUnregister  = async (req: FastifyRequest, res: FastifyReply) => {
+export const eventUnregister = async (
+  req: FastifyRequest,
+  res: FastifyReply
+) => {
   try {
     await req.jwtVerify();
     const user: user_authData = (await req.jwtDecode()) as user_authData;

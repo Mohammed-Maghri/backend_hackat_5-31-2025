@@ -40,7 +40,7 @@ export const eventRoutes = (fastify: FastifyInstance) => {
     },
     handler: eventRegister,
   });
-  
+
   fastify.route({
     method: "POST",
     url: "/event/unregister",
