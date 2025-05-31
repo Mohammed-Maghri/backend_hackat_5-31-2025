@@ -1,5 +1,7 @@
 import z from "zod";
 
+const isoDateRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/;
+
 export const eventCreationSchema = z.object({
   title: z
     .string()
@@ -16,13 +18,11 @@ export const eventCreationSchema = z.object({
     .string()
     .min(1, { message: "Location is required" })
     .max(50, { message: "Location must not exceed 50 characters" }),
-  date: z.string().refine(
-    (val) => {
-      const date = new Date(val);
-      return !isNaN(date.getTime());
-    },
-    { message: "Invalid date format" }
-  ),
+
+  date: z
+    .string()
+    .datetime({ message: "Invalid date format. Must be ISO 8601." }),
+
   image_url: z
     .string()
     .url({ message: "Invalid image URL" })
@@ -33,11 +33,11 @@ export const eventCreationSchema = z.object({
     .enum(["upcoming", "completed", "cancelled", "pending"])
     .optional()
     .default("pending"),
+    
   category_id: z
     .number()
     .int()
-    .positive({ message: "Category ID must be a positive integer" })
-    .optional(),
+    .positive({ message: "Category ID must be a positive integer" }),
   latitude: z.number({
     required_error: "Latitude is required",
     invalid_type_error: "Latitude must be a number",
@@ -46,6 +46,13 @@ export const eventCreationSchema = z.object({
     required_error: "Longitude is required",
     invalid_type_error: "Longitude must be a number",
   }),
+  slots: z
+    .number({
+      required_error: "Slots are required",
+      invalid_type_error: "Slots must be a number",
+    })
+    .int()
+    .positive({ message: "Slots must be a positive integer" }),
 });
 
 export type eventCreationType = z.infer<typeof eventCreationSchema>;

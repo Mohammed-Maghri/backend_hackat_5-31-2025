@@ -19,9 +19,12 @@ CREATE TABLE IF NOT EXISTS events (
     location TEXT,
     date TEXT, -- ISO 8601 string
     image_url TEXT,
+    latitude REAL NOT NULL,
+    longitude REAL NOT NULL,
     status TEXT DEFAULT 'pending', -- 'upcoming' | 'completed' | 'cancelled' | 'pending'
     category_id INTEGER DEFAULT NULL,
     creator_id INTEGER NOT NULL,
+    slots INTEGER NOT NULL,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_events_creator
         FOREIGN KEY (creator_id)

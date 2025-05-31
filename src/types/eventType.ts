@@ -4,8 +4,10 @@ export interface eventTypes {
   location: string;
   date: string;
   image_url?: string;
-  latitude?: number; // remove the optional to make it required
-  longitude?: number;
-  status?: "upcoming" | "completed" | "cancelled" | "pending";
-  category_id?: number;
+  latitude: number;
+  longitude: number;
+  status: "upcoming" | "completed" | "cancelled" | "pending";
+  category_id: number;
+  creator_id: number;
+  slots: number;
 }

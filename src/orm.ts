@@ -1,4 +1,3 @@
-import { table } from "console";
 import {
   Orm_insertion,
   Orm_selection,
