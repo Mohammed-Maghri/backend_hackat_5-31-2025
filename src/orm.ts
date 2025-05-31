@@ -1,60 +1,10 @@
-import { FastifyInstance } from "fastify";
-
-type triple_val = string | number | boolean;
-
-interface Orm_insertion {
-  server: FastifyInstance;
-  table_name: string;
-  colums_name: string[];
-  colums_values: triple_val[];
-  command_instraction: string | null;
-}
-
-interface Orm_selection {
-  server: FastifyInstance;
-  table_name: string;
-  colums_name: string[];
-  command_instraction: string | null;
-}
-interface update_data {
-  server: FastifyInstance;
-  table_name: string;
-  colums_name: string[];
-  colums_values: triple_val[];
-  condition: string;
-}
-interface deletion_data {
-  server: FastifyInstance;
-  table_name: string;
-  condition: string;
-}
-interface Orm {
-  deletion: ({
-    server,
-    table_name,
-    condition,
-  }: deletion_data) => Promise<unknown>;
-  update: ({
-    server,
-    colums_name,
-    colums_values,
-    condition,
-    table_name,
-  }: update_data) => Promise<unknown>;
-  selection: ({
-    server,
-    table_name,
-    colums_name,
-    command_instraction,
-  }: Orm_selection) => Promise<unknown>;
-  insertion: ({
-    server,
-    table_name,
-    colums_name,
-    colums_values,
-    command_instraction,
-  }: Orm_insertion) => Promise<unknown>;
-}
+import {
+  Orm_insertion,
+  Orm_selection,
+  update_data,
+  deletion_data,
+  Orm,
+} from "./types/ormTypes";
 
 const update = async ({
   server,
@@ -97,11 +47,17 @@ const insertion = async ({
         [table_name, colums_values.toString()]
       );
     } else {
+      console.log(
+        `insert into ${table_name} (${colums_name.toString()}) values (${colums_name
+          .map(() => " ? ")
+          .toString()})`
+      );
+      console.log(colums_values.toString(), "teeeeest");
       return await server.db.run(
         `insert into ${table_name} (${colums_name.toString()}) values (${colums_name
           .map(() => " ? ")
           .toString()})`,
-        [colums_values.toString()]
+        [...colums_values]
       );
     }
   } catch (e) {

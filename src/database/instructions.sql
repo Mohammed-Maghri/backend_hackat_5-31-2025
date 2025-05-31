@@ -1,15 +1,15 @@
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    firstname TEXT NOT NULL,
-    lastname TEXT NOT NULL,
-    username TEXT NOT NULL UNIQUE,
-    club_staff BOOLEAN UNIQUE,
-    email TEXT UNIQUE,
-    role BOOLEAN DEFAULT 0,
+    first_name TEXT NOT NULL,
+    last_name TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    login TEXT NOT NULL UNIQUE,
+    images TEXT, -- JSON array of image URLs 
+    club_staff BOOLEAN DEFAULT 0, -- Indicates if the user is a club staff member
+    role BOOLEAN DEFAULT 0 , -- 0 means a number user , 1 is staff
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
-
 
 -- Events table
 CREATE TABLE IF NOT EXISTS events (
@@ -19,11 +19,13 @@ CREATE TABLE IF NOT EXISTS events (
     location TEXT,
     date TEXT, -- ISO 8601 string
     image_url TEXT,
+    latitude REAL NOT NULL,
+    longitude REAL NOT NULL,
     status TEXT DEFAULT 'pending', -- 'upcoming' | 'completed' | 'cancelled' | 'pending'
     category_id INTEGER DEFAULT NULL,
     creator_id INTEGER NOT NULL,
+    slots INTEGER NOT NULL,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-    -- Foreign Keys with Constraint Names
     CONSTRAINT fk_events_creator
         FOREIGN KEY (creator_id)
         REFERENCES users(id)

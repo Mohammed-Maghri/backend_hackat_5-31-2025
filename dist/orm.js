@@ -24,9 +24,13 @@ const insertion = async ({ server, table_name, colums_name, colums_values, comma
                 .toString()}) ${command_instraction}`, [table_name, colums_values.toString()]);
         }
         else {
+            console.log(`insert into ${table_name} (${colums_name.toString()}) values (${colums_name
+                .map(() => " ? ")
+                .toString()})`);
+            console.log(colums_values.toString(), "teeeeest");
             return await server.db.run(`insert into ${table_name} (${colums_name.toString()}) values (${colums_name
                 .map(() => " ? ")
-                .toString()})`, [colums_values.toString()]);
+                .toString()})`, [...colums_values]);
         }
     }
     catch (e) {
