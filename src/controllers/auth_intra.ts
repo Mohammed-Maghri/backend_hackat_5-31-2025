@@ -22,7 +22,7 @@ interface user_authData {
 
 const auth_intra = async (req: FastifyRequest, res: FastifyReply) => {
   try {
-    const code = (JSON.parse(req.body as string) as code_extract).code;
+    const code = (req.body  as code_extract).code;
     const Toke = new URLSearchParams({
       grant_type: "authorization_code",
       client_id: req.server.getEnvs<Envs>().client_id,
@@ -30,7 +30,6 @@ const auth_intra = async (req: FastifyRequest, res: FastifyReply) => {
       code: code,
       redirect_uri: req.server.getEnvs<Envs>().redirect_uri,
     });
-
     const access_token = await fetch(
       req.server.getEnvs<Envs>().intra_endpoint,
       {

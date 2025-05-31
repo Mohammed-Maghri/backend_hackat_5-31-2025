@@ -1,7 +1,7 @@
 import { encrypte_token } from "../helpers/encryption.js";
 const auth_intra = async (req, res) => {
     try {
-        const code = JSON.parse(req.body).code;
+        const code = req.body.code;
         const Toke = new URLSearchParams({
             grant_type: "authorization_code",
             client_id: req.server.getEnvs().client_id,

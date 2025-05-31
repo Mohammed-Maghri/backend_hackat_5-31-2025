@@ -5,20 +5,12 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const fastify: FastifyInstance = Fastify({
-  logger: true,
+  logger: false,
 });
 
 const PORT = parseInt(process.env.PORT || "8000", 10);
 
 registerRoutes(fastify);
-
-// try {
-//   fastify.ready(async () => {
-//     console.log(await fastify.db.all("select * from users ;"));
-//   });
-// } catch (e) {
-//   console.log("Error !", e as Error);
-// }
 
 const serverFunction = () => {
   try {

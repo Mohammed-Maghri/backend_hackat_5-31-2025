@@ -8,7 +8,6 @@ export const getUser = (req: FastifyRequest, resp: FastifyReply) => {
 
 export const getUserData = async (req: FastifyRequest, resp: FastifyReply) => {
   try {
-    console.log(" -----< ", req.headers);
     await req.jwtVerify();
     const userData: user_authData = await req.jwtDecode();
     // const result = userAccountCreation(userData)

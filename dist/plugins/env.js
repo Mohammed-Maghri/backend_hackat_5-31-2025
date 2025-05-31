@@ -16,7 +16,7 @@ export const envPlugin = fp(async (fastify) => {
         properties: {
             backend_endpoint: {
                 type: "string",
-                default: "https://0cd6-197-230-30-146.ngrok-free.app",
+                default: "https://ae83-197-230-30-146.ngrok-free.app",
             },
             port: {
                 type: "number",
@@ -24,11 +24,11 @@ export const envPlugin = fp(async (fastify) => {
             },
             client_id: {
                 type: "string",
-                default: "u-s4t2ud-3acb9e44a10c8a45fbf13db9bd51295f24224bf9fc7cec6890ed26e1715330a3",
+                default: "u-s4t2ud-3d37be66e70cac7276a7ebbd562de8c431098f36cb4ffeb4c8096bfb5325253b",
             },
             redirect_uri: {
                 type: "string",
-                default: "https://0cd6-197-230-30-146.ngrok-free.app/redirect",
+                default: "com.thexd.hackatonnew://redirect",
             },
             intra_endpoint: {
                 type: "string",
@@ -36,7 +36,7 @@ export const envPlugin = fp(async (fastify) => {
             },
             intra_secret: {
                 type: "string",
-                default: "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",
+                default: "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",
             },
             intra_point: {
                 type: "string",
