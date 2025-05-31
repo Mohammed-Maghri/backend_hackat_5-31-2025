@@ -60,7 +60,7 @@ CREATE TABLE IF NOT EXISTS feedback (
     user_id INTEGER NOT NULL,
     event_id INTEGER NOT NULL,
     rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
-    comment TEXT,
+    comment TEXT NOT NULL,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     -- Foreign keys
     CONSTRAINT fk_feedback_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,

@@ -34,7 +34,7 @@ const insertion = async ({ server, table_name, colums_name, colums_values, comma
         }
     }
     catch (e) {
-        return e;
+        return -1;
     }
 };
 const selection = async ({ server, table_name, colums_name, command_instraction, }) => {

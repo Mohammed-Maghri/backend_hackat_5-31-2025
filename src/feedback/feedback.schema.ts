@@ -12,4 +12,5 @@ export const feedbackSchema = z.object({
     .max(200, { message: "Comment must be under 200 characters" }),
 });
 
+
 export type feedbackSchemaType = z.infer<typeof feedbackSchema>;

@@ -61,7 +61,7 @@ const insertion = async ({
       );
     }
   } catch (e) {
-    return e;
+    return -1;
   }
 };
 
