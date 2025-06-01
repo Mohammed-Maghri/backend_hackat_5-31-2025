@@ -333,3 +333,62 @@ export const eventAllCategories = async (req, resp) => {
         return resp.badRequest("Error in getting categories");
     }
 };
+export const eventAllRegistered = async (req, resp) => {
+    try {
+        await req.jwtVerify();
+        const user = await req.jwtDecode();
+        const registeredEvents = (await Orm_db.selection({
+            server: req.server,
+            table_name: "registrations",
+            colums_name: ["event_id"],
+            command_instraction: `WHERE user_id = "${user.id}"`,
+        }));
+        if (registeredEvents.length === 0) {
+            return resp.status(200).send({ message: "No registered events found" });
+        }
+        // Fetch event details for each registered event
+        const eventIds = registeredEvents.map((event) => event.event_id);
+        const eventsDetails = (await Orm_db.selection({
+            server: req.server,
+            table_name: "events",
+            colums_name: ["*"],
+            command_instraction: `WHERE id IN (${eventIds.join(",")})`,
+        }));
+        if (eventsDetails.length === 0) {
+            return resp.status(404).send({ message: "No event details found" });
+        }
+        return resp.status(200).send(eventsDetails);
+    }
+    catch (err) {
+        console.error("Error catched :", err);
+        return resp
+            .status(401)
+            .send({ error: "Error in getting registered events" });
+    }
+};
+export const eventEndPointRegisterChecker = async (req, resp) => {
+    try {
+        await req.jwtVerify();
+        const userdata = await req.jwtDecode();
+        const eventInfos = req.params;
+        if (!eventInfos.id) {
+            return resp.status(400).send({ error: "Event ID is required" });
+        }
+        const registrationCheck = (await Orm_db.selection({
+            server: req.server,
+            table_name: "registrations",
+            colums_name: ["*"],
+            command_instraction: `WHERE user_id = "${userdata.id}" AND event_id = "${eventInfos.id}"`,
+        }));
+        if (registrationCheck.length > 0) {
+            return resp.status(200).send({ registered: true });
+        }
+        else {
+            return resp.status(200).send({ registered: false });
+        }
+    }
+    catch (err) {
+        console.error("JWT verification failed Or sql Injection error", err);
+        return resp.status(401).send({ error: "Unauthorized" });
+    }
+};

@@ -1,8 +1,9 @@
 import { eventCreation } from "./events.controller.js";
 import { eventCreationSchema, eventParamsSchema, headerEventRegister, bodyEventRegister, } from "./events.schema.js";
 import zodToJsonSchema from "zod-to-json-schema";
-import { eventEndPoint, eventRegister, eventUnregister, adminListUnverifiedEvents, adminEventVerify, eventAllCategories, } from "./events.controller.js";
+import { eventEndPoint, eventRegister, eventUnregister, adminListUnverifiedEvents, adminEventVerify, eventAllCategories, eventAllRegistered, eventEndPointRegisterChecker } from "./events.controller.js";
 export const eventRoutes = (fastify) => {
+    //getting all the categories of the events
     fastify.route({
         method: "GET",
         url: "/event/categories",
@@ -17,6 +18,7 @@ export const eventRoutes = (fastify) => {
         },
         handler: eventCreation,
     });
+    //get all the events in the db
     fastify.route({
         method: "GET",
         url: "/event",
@@ -25,6 +27,7 @@ export const eventRoutes = (fastify) => {
         },
         handler: eventEndPoint,
     });
+    //register to a specific event
     fastify.route({
         method: "POST",
         url: "/event/register",
@@ -34,6 +37,7 @@ export const eventRoutes = (fastify) => {
         },
         handler: eventRegister,
     });
+    //unregister to a specific event
     fastify.route({
         method: "POST",
         url: "/event/unregister",
@@ -43,11 +47,13 @@ export const eventRoutes = (fastify) => {
         },
         handler: eventUnregister,
     });
+    // return the unverified events only to the admin
     fastify.route({
         method: "GET",
         url: "/event/admin/unverifiedevents",
         handler: adminListUnverifiedEvents,
     });
+    // lets the admin verify the specific unverified event
     fastify.route({
         method: "POST",
         url: "/event/admin/modify",
@@ -56,5 +62,17 @@ export const eventRoutes = (fastify) => {
             body: zodToJsonSchema(bodyEventRegister),
         },
         handler: adminEventVerify,
+    });
+    // return all the registered events of a user
+    fastify.route({
+        method: "GET",
+        url: "/event/user/registeredevents",
+        handler: eventAllRegistered,
+    });
+    // he will pass the event id and return if registered or not
+    fastify.route({
+        method: "GET",
+        url: "/event/user/:id",
+        handler: eventEndPointRegisterChecker,
     });
 };

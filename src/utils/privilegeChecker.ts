@@ -1,5 +1,5 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { Orm_db } from "../orm";
+import { Orm_db } from "../orm.js";
 import { userDatabaseSchema } from "../types/userAuthData";
 import { user_authData } from "../types/userAuthData";
 
