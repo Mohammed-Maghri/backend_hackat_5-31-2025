@@ -11,6 +11,7 @@ import jwtFromThere from "./plugins/jwt.js";
 import { feedBackroutes } from "./feedback/feedback.route.js";
 import { adminRoutes } from "./admin/admin.route.js";
 
+
 export const registerRoutes = (fastify: FastifyInstance) => {
   fastify.register(fpSqlitePlugin, {
     dbFilename: "src/database/database.db",

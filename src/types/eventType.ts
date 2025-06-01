@@ -20,4 +20,4 @@ export interface eventQueryVerify {
   status: string | undefined;
   latitude: number | undefined;
   longitude: number | undefined;
-};
+}
