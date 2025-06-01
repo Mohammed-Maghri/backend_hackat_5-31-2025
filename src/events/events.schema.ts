@@ -6,14 +6,14 @@ export const eventCreationSchema = z.object({
   title: z
     .string()
     .min(1, { message: "Title is required" })
-    .max(20, { message: "Title must be less than 20 characters" })
+    .max(50, { message: "Title must be less than 20 characters" })
     .refine((val) => val.trim().length !== 0, {
       message: "Please Enter characters",
     }),
   description: z
     .string()
     .min(5, { message: "Description should have at least 5 characters" })
-    .max(50, { message: "Description should not exceed 50 characters" }),
+    .max(150, { message: "Description should not exceed 50 characters" }),
   location: z
     .string()
     .min(1, { message: "Location is required" })

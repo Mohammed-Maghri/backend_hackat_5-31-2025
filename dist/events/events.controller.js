@@ -55,6 +55,7 @@ export const eventCreation = async (req, resp) => {
                 "category_id",
                 "creator_id",
                 "slots",
+                "total_slots",
                 "category_name",
             ],
             colums_values: [
@@ -68,6 +69,7 @@ export const eventCreation = async (req, resp) => {
                 status,
                 eventData.category_id,
                 userDbData[0].id,
+                0,
                 eventData.slots,
                 categoryData[0].category_name,
             ],
@@ -188,7 +190,9 @@ export const eventUnregister = async (req, res) => {
             command_instraction: `WHERE user_id = "${user.id}" AND event_id = "${eventInfos.eventId}"`,
         }));
         if (checkRegisterValidity.length === 0) {
-            return res.status(400).send({ error: "You are not registered for this event" });
+            return res
+                .status(400)
+                .send({ error: "You are not registered for this event" });
         }
         console.log(" --------- --- ->< ", checkRegisterValidity);
         const eventData = (await Orm_db.selection({
