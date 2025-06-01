@@ -57,7 +57,7 @@ export const eventRoutes = (fastify: FastifyInstance) => {
     url: "/event/admin/unverifiedevents",
     handler: adminListUnverifiedEvents,
   });
-  
+
   fastify.route({
     method: "GET",
     url: "/event/admin/modify",

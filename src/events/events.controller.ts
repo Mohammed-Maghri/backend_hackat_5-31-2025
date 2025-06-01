@@ -80,7 +80,6 @@ export const eventCreation = async (
   }
 };
 
-
 export const eventEndPoint = async (req: FastifyRequest, res: FastifyReply) => {
   try {
     console.log("testing api call");
@@ -104,7 +103,6 @@ export const eventEndPoint = async (req: FastifyRequest, res: FastifyReply) => {
     return res.status(400).send({ status: "Error !" });
   }
 };
-
 
 export const eventRegister = async (req: FastifyRequest, res: FastifyReply) => {
   try {
@@ -151,7 +149,6 @@ export const eventUnregister = async (
   res.status(200).send({ logs: "eventDelete endpoint hit !" });
 };
 
-
 const eventQueryVerify = (eventInfo: eventQueryVerify) => {
   let colums_append_array: string[] = [];
   let colums_values_append_array: string[] = [];
@@ -181,7 +178,7 @@ const eventQueryVerify = (eventInfo: eventQueryVerify) => {
 
 // Tomorrow, we will implement the adminEventVerify function
 // Everythin is ready, we just need to implement the query and Insert it with the orm_db
-// and the response 
+// and the response
 export const adminEventVerify = async (
   req: FastifyRequest,
   res: FastifyReply
@@ -215,7 +212,6 @@ export const adminEventVerify = async (
     return res.status(401).send({ error: "Unauthorized" });
   }
 };
-
 
 export const adminListUnverifiedEvents = async (
   req: FastifyRequest,
