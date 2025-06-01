@@ -5,11 +5,11 @@ import {
   queryObject,
   eventQueryVerify,
   objectReturnAdminUpdate,
-  eventBody,
 } from "../types/queryType.js";
 import { user_authData } from "../types/userAuthData.js";
 import { shouldSearch } from "../helpers/searchParser.js";
-import { ca } from "zod/v4/locales";
+import { userDatabaseSchema } from "../types/userAuthData.js";
+import { eventBody } from "../types/queryType.js";
 
 export const eventCreation = async (
   req: FastifyRequest,
@@ -30,17 +30,32 @@ export const eventCreation = async (
         "Event with the same title and date already exists."
       );
     }
-    const userId = (await Orm_db.selection({
+    const userDbData = (await Orm_db.selection({
       server: req.server,
       table_name: "users",
-      colums_name: ["id"],
+      colums_name: ["*"],
       command_instraction: `WHERE login = '${user.login}'`,
-    })) as number | [];
-    if ((userId as []).length === 0) {
+    })) as userDatabaseSchema[];
+
+    if (userDbData.length === 0) {
       console.log("No existing user");
       return resp.badRequest("User not found");
     }
-    console.log(userId, "userId of the user");
+    let status = "pending";
+    if (userDbData[0].club_staff || user.staff) {
+      status = "upcoming";
+    }
+    console.log(userDbData);
+    // should get category name to push to db
+    const categoryData = (await Orm_db.selection({
+      server: req.server,
+      table_name: "categories",
+      colums_name: ["category_name"],
+      command_instraction: `WHERE id = '${eventData.category_id}'`,
+    })) as { category_name: string }[];
+    if (categoryData.length === 0) {
+      return resp.badRequest("Category not found");
+    }
     const result = await Orm_db.insertion({
       server: req.server,
       table_name: "events",
@@ -56,6 +71,7 @@ export const eventCreation = async (
         "category_id",
         "creator_id",
         "slots",
+        "category_name",
       ],
       colums_values: [
         eventData.title,
@@ -65,14 +81,27 @@ export const eventCreation = async (
         eventData.image_url || "",
         eventData.latitude,
         eventData.longitude,
-        eventData.status,
+        status,
         eventData.category_id,
-        userId as number,
+        userDbData[0].id,
         eventData.slots,
+        categoryData[0].category_name,
       ],
       command_instraction: null,
     });
-    console.log("result of the insertion query", result);
+    if (result === -1) {
+      return resp.status(400).send({ error: "Failed to insert event data" });
+    }
+    console.log("Event data inserted successfully");
+    // send notifications to all users when event is created
+
+    const users = (await Orm_db.selection({
+      server: req.server,
+      table_name: "users",
+      colums_name: ["expo_notification_token"],
+      command_instraction: null,
+    })) as string[];
+
     resp.status(200).send({ message: "/event endpoint hit" });
   } catch (e: any) {
     console.error("Error inserting event data:", e);
@@ -202,7 +231,7 @@ export const adminEventVerify = async (
   try {
     await req.jwtVerify();
     const user: user_authData = (await req.jwtDecode()) as user_authData;
-    // if (!user.staff) return res.status(403).send({ logs: "Forbidden" });
+    if (!user.staff) return res.status(403).send({ logs: "Forbidden" });
     const eventId = req.body as eventBody;
     const eventInfos: eventQueryVerify = {
       slots: ((req.query as eventQueryVerify).slots as number) || "",
@@ -238,7 +267,7 @@ export const adminListUnverifiedEvents = async (
   try {
     await req.jwtVerify();
     const user: user_authData = (await req.jwtDecode()) as user_authData;
-    // if (!user.staff) return res.status(403).send({ logs: "Forbidden" });
+    if (!user.staff) return res.status(403).send({ logs: "Forbidden" });
     const unverifiedEvents = await Orm_db.selection({
       server: req.server,
       table_name: "events",

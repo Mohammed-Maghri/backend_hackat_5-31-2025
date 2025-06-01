@@ -14,17 +14,31 @@ export const eventCreation = async (req, resp) => {
         if (existingEvent.length > 0) {
             return resp.badRequest("Event with the same title and date already exists.");
         }
-        const userId = (await Orm_db.selection({
+        const userDbData = (await Orm_db.selection({
             server: req.server,
             table_name: "users",
-            colums_name: ["id"],
+            colums_name: ["*"],
             command_instraction: `WHERE login = '${user.login}'`,
         }));
-        if (userId.length === 0) {
+        if (userDbData.length === 0) {
             console.log("No existing user");
             return resp.badRequest("User not found");
         }
-        console.log(userId, "userId of the user");
+        let status = "pending";
+        if (userDbData[0].club_staff || user.staff) {
+            status = "upcoming";
+        }
+        console.log(userDbData);
+        // should get category name to push to db
+        const categoryData = (await Orm_db.selection({
+            server: req.server,
+            table_name: "categories",
+            colums_name: ["category_name"],
+            command_instraction: `WHERE id = '${eventData.category_id}'`,
+        }));
+        if (categoryData.length === 0) {
+            return resp.badRequest("Category not found");
+        }
         const result = await Orm_db.insertion({
             server: req.server,
             table_name: "events",
@@ -40,6 +54,7 @@ export const eventCreation = async (req, resp) => {
                 "category_id",
                 "creator_id",
                 "slots",
+                "category_name",
             ],
             colums_values: [
                 eventData.title,
@@ -49,14 +64,25 @@ export const eventCreation = async (req, resp) => {
                 eventData.image_url || "",
                 eventData.latitude,
                 eventData.longitude,
-                eventData.status,
+                status,
                 eventData.category_id,
-                userId,
+                userDbData[0].id,
                 eventData.slots,
+                categoryData[0].category_name,
             ],
             command_instraction: null,
         });
-        console.log("result of the insertion query", result);
+        if (result === -1) {
+            return resp.status(400).send({ error: "Failed to insert event data" });
+        }
+        console.log("Event data inserted successfully");
+        // send notifications to all users when event is created
+        const users = (await Orm_db.selection({
+            server: req.server,
+            table_name: "users",
+            colums_name: ["expo_notification_token"],
+            command_instraction: null,
+        }));
         resp.status(200).send({ message: "/event endpoint hit" });
     }
     catch (e) {
@@ -178,7 +204,8 @@ export const adminEventVerify = async (req, res) => {
     try {
         await req.jwtVerify();
         const user = (await req.jwtDecode());
-        // if (!user.staff) return res.status(403).send({ logs: "Forbidden" });
+        if (!user.staff)
+            return res.status(403).send({ logs: "Forbidden" });
         const eventId = req.body;
         const eventInfos = {
             slots: req.query.slots || "",
@@ -210,7 +237,8 @@ export const adminListUnverifiedEvents = async (req, res) => {
     try {
         await req.jwtVerify();
         const user = (await req.jwtDecode());
-        // if (!user.staff) return res.status(403).send({ logs: "Forbidden" });
+        if (!user.staff)
+            return res.status(403).send({ logs: "Forbidden" });
         const unverifiedEvents = await Orm_db.selection({
             server: req.server,
             table_name: "events",

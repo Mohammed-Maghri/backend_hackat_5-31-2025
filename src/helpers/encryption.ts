@@ -14,4 +14,3 @@ export const decrypt_token = ({ message, key }: encrypte_data) => {
   const decrypted_data = CryptoJS.AES.decrypt(message, key);
   return decrypted_data.toString(CryptoJS.enc.Utf8);
 };
-

@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
+    expo_notification_token TEXT UNIQUE DEFAULT "", -- For push notifications
     login TEXT NOT NULL UNIQUE,
     images TEXT, -- JSON array of image URLs 
     club_staff BOOLEAN DEFAULT 0, -- Indicates if the user is a club staff member
@@ -42,6 +43,7 @@ CREATE TABLE IF NOT EXISTS events (
     category_id INTEGER DEFAULT NULL,
     pictures TEXT DEFAULT "", -- should implement pictures logic
     creator_id INTEGER NOT NULL,
+    category_name TEXT NOT NULL,
     slots INTEGER NOT NULL,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_events_creator
@@ -52,6 +54,12 @@ CREATE TABLE IF NOT EXISTS events (
         FOREIGN KEY (category_id)
         REFERENCES categories(id)
         ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS categories (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    category_name TEXT NOT NULL UNIQUE,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Registrations table (many-to-many)

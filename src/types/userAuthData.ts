@@ -1,3 +1,16 @@
+export interface userDatabaseSchema {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  login: string;
+  images?: string;
+  club_staff: boolean;
+  staff: boolean;
+  role: boolean;
+  created_at: Date;
+}
+
 export interface user_authData {
   id: number;
   email: string;
