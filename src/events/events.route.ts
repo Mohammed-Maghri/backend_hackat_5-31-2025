@@ -14,6 +14,7 @@ import {
   adminListUnverifiedEvents,
   adminEventVerify,
   eventAllCategories,
+  eventAllRegistered,
 } from "./events.controller.js";
 
 export const eventRoutes = (fastify: FastifyInstance) => {
@@ -75,5 +76,11 @@ export const eventRoutes = (fastify: FastifyInstance) => {
       body: zodToJsonSchema(bodyEventRegister),
     },
     handler: adminEventVerify,
+  });
+
+  fastify.route({
+    method: "GET",
+    url: "/event/user/registeredevents",
+    handler: eventAllRegistered,
   });
 };

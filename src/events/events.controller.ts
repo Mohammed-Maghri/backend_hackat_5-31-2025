@@ -373,3 +373,28 @@ export const eventAllCategories = async (
     return resp.badRequest("Error in getting categories");
   }
 };
+
+export const eventAllRegistered = async (
+  req: FastifyRequest,
+  resp: FastifyReply
+) => {
+  try {
+    await req.jwtVerify();
+    const user: user_authData = await req.jwtDecode();
+    const registeredEvents = (await Orm_db.selection({
+      server: req.server,
+      table_name: "registrations",
+      colums_name: ["event_id"],
+      command_instraction: `WHERE user_id = "${user.id}"`,
+    })) as { event_id: string }[];
+    if (registeredEvents.length === 0) {
+      return resp.status(200).send({ message: "No registered events found" });
+    }
+    return resp.status(200).send(registeredEvents);
+  } catch (err) {
+    console.error("Error catched :", err);
+    return resp
+      .status(401)
+      .send({ error: "Error in getting registered events" });
+  }
+};
