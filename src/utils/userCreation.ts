@@ -20,9 +20,8 @@ export const userAccountCreation = async (
     return;
   }
   // needs to get the expoPushToken from the userData
-  const { expo_notification_token } = request.query as {
-    expo_notification_token?: string;
-  };
+  const expo_notification_token = request.body as string;
+  console.log(expo_notification_token, "expo_notification_token");
   console.log("Creating user account...");
   const res = await Orm_db.insertion({
     server: request.server,

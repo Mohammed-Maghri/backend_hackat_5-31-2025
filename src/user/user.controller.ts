@@ -7,7 +7,7 @@ export const getUser = (req: FastifyRequest, resp: FastifyReply) => {
   resp.status(200).send({ message: "Valid /user hit" });
 };
 
-export const getUserData = async (req: FastifyRequest, resp: FastifyReply) => {
+export const getUserData = async (req: FastifyRequest<{Body : {expo_notification_token : string}}>, resp: FastifyReply) => {
   try {
     await req.jwtVerify();
     const userData: user_authData = await req.jwtDecode();

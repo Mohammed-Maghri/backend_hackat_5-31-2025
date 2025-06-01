@@ -11,17 +11,8 @@ export const userRoutes = (fastify: FastifyInstance) => {
   });
 
   fastify.route({
-    method: "GET",
+    method: "POST",
     url: "/me",
-    // schema: {
-    //   headers: {
-    //     type: "object",
-    //     properties: {
-    //       Authorization: { type: "string" },
-    //     },
-    //     required: ["Authorization"],
-    //   },
-    // },
     handler: getUserData,
   });
 };
