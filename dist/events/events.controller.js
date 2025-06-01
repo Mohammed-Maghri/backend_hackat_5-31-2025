@@ -346,7 +346,18 @@ export const eventAllRegistered = async (req, resp) => {
         if (registeredEvents.length === 0) {
             return resp.status(200).send({ message: "No registered events found" });
         }
-        return resp.status(200).send(registeredEvents);
+        // Fetch event details for each registered event
+        const eventIds = registeredEvents.map((event) => event.event_id);
+        const eventsDetails = (await Orm_db.selection({
+            server: req.server,
+            table_name: "events",
+            colums_name: ["*"],
+            command_instraction: `WHERE id IN (${eventIds.join(",")})`,
+        }));
+        if (eventsDetails.length === 0) {
+            return resp.status(404).send({ message: "No event details found" });
+        }
+        return resp.status(200).send(eventsDetails);
     }
     catch (err) {
         console.error("Error catched :", err);
@@ -357,23 +368,25 @@ export const eventAllRegistered = async (req, resp) => {
 };
 const QueryEventFavorite = (id) => {
     // Needs To Work On
-    return `SELECT * , users.* FROM favorites JOIN WHERE user_id = "${id}"`;
+    return ` SELECT favorite.user_id , users.* from 
+    favorite left join users
+    on user_id == users.id 
+   where favorite.user_id == "${id}";`;
 };
 export const eventAddToFavorite = async (req, resp) => {
     try {
-        console.log(' ----------- !~');
         await req.jwtVerify();
         const user = (await req.jwtDecode());
         const eventId = req.body;
         if (!eventId) {
             return resp.status(400).send({ error: "Event ID is required" });
         }
-        console.log(" ==> ", user?.id, eventId?.event_id);
+        console.log(" ==> ", user?.id, eventId?.eventId);
         const result = await Orm_db.insertion({
             server: req.server,
             table_name: "favorite",
             colums_name: ["user_id", "event_id"],
-            colums_values: [user.id, eventId.event_id],
+            colums_values: [user.id, eventId.eventId],
             command_instraction: null,
         });
         if (result === -1) {
@@ -390,20 +403,31 @@ export const eventAddToFavorite = async (req, resp) => {
             .send({ error: "Error in adding event to favorites" });
     }
 };
-const eventFavoriteList = async (req, resp) => {
+export const eventfavoriteDeletion = async (req, resp) => {
     try {
         await req.jwtVerify();
         const user = (await req.jwtDecode());
-        const favoriteEvents = (await Orm_db.selection({
+        if (!user.staff)
+            return resp.status(403).send({ logs: "Forbidden" });
+        const eventId = req.body;
+        const result = await Orm_db.deletion({
             server: req.server,
-            table_name: "favorites",
-            colums_name: ["event_id"],
-            command_instraction: `WHERE user_id = "${user.id}"`,
-        }));
-        if (favoriteEvents.length === 0) {
-            return resp.status(200).send({ message: "No favorite events found" });
+            table_name: "favorite",
+            condition: `WHERE event_id = "${eventId.eventId}"`,
+        });
+        if (result === -1) {
+            return resp.status(400).send({ error: "Event deletion failed" });
         }
-        return resp.status(200).send(favoriteEvents);
+        return resp.status(200).send({ logs: "Event deleted successfully" });
+    }
+    catch (err) { }
+};
+export const eventFavoriteList = async (req, resp) => {
+    try {
+        await req.jwtVerify();
+        const user = (await req.jwtDecode());
+        const AllData = await req.server.db.all(QueryEventFavorite(user.id.toString()));
+        return resp.status(200).send(AllData);
     }
     catch (err) {
         console.error("Error in fetching favorite events:", err);

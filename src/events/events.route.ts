@@ -15,7 +15,9 @@ import {
   adminEventVerify,
   eventAllCategories,
   eventAllRegistered,
-  eventAddToFavorite
+  eventFavoriteList,
+  eventAddToFavorite,
+  eventfavoriteDeletion
 } from "./events.controller.js";
 
 export const eventRoutes = (fastify: FastifyInstance) => {
@@ -88,11 +90,29 @@ export const eventRoutes = (fastify: FastifyInstance) => {
   });
 
   fastify.route({
-    method: "POST",
+    method: "GET",
     url: "/event/list/favorites",
     schema: {
       headers: zodToJsonSchema(headerEventRegister),
     },
+    handler: eventFavoriteList,
+  });
+  fastify.route({
+    method: "POST",
+    url: "/event/add/favorite",
+    schema: {
+      headers: zodToJsonSchema(headerEventRegister),
+      body: zodToJsonSchema(bodyEventRegister), 
+    },
     handler: eventAddToFavorite,
+  });
+  fastify.route({
+    method: "POST",
+    url: "/event/delete/favorite",
+    schema: {
+      headers: zodToJsonSchema(headerEventRegister),
+      body: zodToJsonSchema(bodyEventRegister), 
+    },
+    handler: eventfavoriteDeletion,
   });
 };

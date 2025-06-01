@@ -412,7 +412,10 @@ export const eventAllRegistered = async (
 
 const QueryEventFavorite = (id: string) => {
   // Needs To Work On
-  return `SELECT * , users.* FROM favorites JOIN WHERE user_id = "${id}"`;
+  return ` SELECT favorite.user_id , users.* from 
+    favorite left join users
+    on user_id == users.id 
+   where favorite.user_id == "${id}";`;
 };
 
 export const eventAddToFavorite = async (
@@ -420,19 +423,18 @@ export const eventAddToFavorite = async (
   resp: FastifyReply
 ) => {
   try {
-    console.log(' ----------- !~')
     await req.jwtVerify();
     const user: user_authData = (await req.jwtDecode()) as user_authData;
-    const eventId = req.body as { event_id: string };
+    const eventId = req.body as { eventId: string };
     if (!eventId) {
       return resp.status(400).send({ error: "Event ID is required" });
     }
-    console.log(" ==> ", user?.id, eventId?.event_id);
+    console.log(" ==> ", user?.id, eventId?.eventId);
     const result = await Orm_db.insertion({
       server: req.server,
       table_name: "favorite",
       colums_name: ["user_id", "event_id"],
-      colums_values: [user.id, eventId.event_id],
+      colums_values: [user.id, eventId.eventId],
       command_instraction: null,
     });
     if (result === -1) {
@@ -449,20 +451,38 @@ export const eventAddToFavorite = async (
   }
 };
 
-const eventFavoriteList = async (req: FastifyRequest, resp: FastifyReply) => {
+export const eventfavoriteDeletion = async (
+  req: FastifyRequest,
+  resp: FastifyReply
+) => {
   try {
     await req.jwtVerify();
     const user: user_authData = (await req.jwtDecode()) as user_authData;
-    const favoriteEvents = (await Orm_db.selection({
+    if (!user.staff) return resp.status(403).send({ logs: "Forbidden" });
+    const eventId = req.body as eventBody;
+    const result = await Orm_db.deletion({
       server: req.server,
-      table_name: "favorites",
-      colums_name: ["event_id"],
-      command_instraction: `WHERE user_id = "${user.id}"`,
-    })) as { event_id: string }[];
-    if (favoriteEvents.length === 0) {
-      return resp.status(200).send({ message: "No favorite events found" });
+      table_name: "favorite",
+      condition: `WHERE event_id = "${eventId.eventId}"`,
+    });
+    if (result === -1) {
+      return resp.status(400).send({ error: "Event deletion failed" });
     }
-    return resp.status(200).send(favoriteEvents);
+    return resp.status(200).send({ logs: "Event deleted successfully" });
+  } catch (err) {}
+};
+
+export const eventFavoriteList = async (
+  req: FastifyRequest,
+  resp: FastifyReply
+) => {
+  try {
+    await req.jwtVerify();
+    const user: user_authData = (await req.jwtDecode()) as user_authData;
+    const AllData = await req.server.db.all(
+      QueryEventFavorite(user.id.toString())
+    );
+    return resp.status(200).send(AllData);
   } catch (err) {
     console.error("Error in fetching favorite events:", err);
     return resp.status(401).send({ error: "Error in getting favorite events" });
