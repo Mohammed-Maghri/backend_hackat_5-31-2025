@@ -41,6 +41,21 @@ export const eventCreation = async (
       console.log("No existing user");
       return resp.badRequest("User not found");
     }
+    let status = "pending";
+    if (userDbData[0].club_staff || user.staff) {
+      status = "upcoming";
+    }
+    console.log(userDbData);
+    // should get category name to push to db
+    const categoryData = (await Orm_db.selection({
+      server: req.server,
+      table_name: "categories",
+      colums_name: ["category_name"],
+      command_instraction: `WHERE id = '${eventData.category_id}'`,
+    })) as { category_name: string }[];
+    if (categoryData.length === 0) {
+      return resp.badRequest("Category not found");
+    }
     const result = await Orm_db.insertion({
       server: req.server,
       table_name: "events",
@@ -56,6 +71,7 @@ export const eventCreation = async (
         "category_id",
         "creator_id",
         "slots",
+        "category_name",
       ],
       colums_values: [
         eventData.title,
@@ -65,10 +81,11 @@ export const eventCreation = async (
         eventData.image_url || "",
         eventData.latitude,
         eventData.longitude,
-        user.staff || userDbData[0].club_staff ? "upcoming" : eventData.status,
+        status,
         eventData.category_id,
         userDbData[0].id,
         eventData.slots,
+        categoryData[0].category_name,
       ],
       command_instraction: null,
     });
