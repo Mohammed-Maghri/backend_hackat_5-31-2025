@@ -133,6 +133,7 @@ const queryGetEventsWithAvatarPic = async (
       query = `SELECT events.*, users.images , users.login FROM events
     JOIN users ON events.creator_id = users.id`;
     }
+    console.log("Executing query:", query);
     const searchResult = await server.db.all(query);
     return searchResult;
   } catch (error) {
@@ -142,6 +143,7 @@ const queryGetEventsWithAvatarPic = async (
 
 export const eventEndPoint = async (req: FastifyRequest, res: FastifyReply) => {
   try {
+    console.log("eventEndPoint called with query:", req.query);
     const geterOject = req.query as queryObject;
     const queryFilter: queryObject = {
       title: (geterOject.title as string) || "",
@@ -150,6 +152,7 @@ export const eventEndPoint = async (req: FastifyRequest, res: FastifyReply) => {
       end_date: (geterOject.end_date as string) || "",
       page: (geterOject.page as string) || "",
     };
+    console.log(await queryGetEventsWithAvatarPic(queryFilter, req.server))
     const events = await queryGetEventsWithAvatarPic(queryFilter, req.server);
     return res.status(200).send(events);
   } catch (e) {
@@ -158,6 +161,7 @@ export const eventEndPoint = async (req: FastifyRequest, res: FastifyReply) => {
 };
 
 interface eventData {
+  total_slots: string;
   slots: string;
 }
 
@@ -173,7 +177,7 @@ export const eventRegister = async (req: FastifyRequest, res: FastifyReply) => {
       command_instraction: `WHERE id = "${eventInfos.eventId}"`,
     })) as eventData[];
     console.log("Event data: ", eventData);
-    if (parseInt(eventData[0].slots) <= 0) {
+    if (parseInt(eventData[0].slots) === parseInt(eventData[0].total_slots)) {
       return res
         .status(400)
         .send({ error: "No slots available for this event" });
@@ -183,7 +187,7 @@ export const eventRegister = async (req: FastifyRequest, res: FastifyReply) => {
       server: req.server,
       table_name: "events",
       colums_name: ["slots"],
-      colums_values: [parseInt(eventData[0].slots) - 1],
+      colums_values: [parseInt(eventData[0].slots) + 1],
       condition: `WHERE id = "${eventInfos.eventId}"`,
     });
 
