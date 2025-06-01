@@ -92,6 +92,7 @@ export const eventCreation = async (
       ],
       command_instraction: null,
     });
+    console.log("Tokens ------------------------");
     if (result === -1) {
       return resp.status(400).send({ error: "Failed to insert event data" });
     }
@@ -104,7 +105,6 @@ export const eventCreation = async (
       command_instraction: null,
     })) as string[];
 
-    console.log(userTokens, "Tokens ------------------------");
     if (userTokens.length > 0) {
       for (const token of userTokens) {
         console.log("Sending notification to token:", token);

@@ -1,9 +1,7 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { user_authData } from "../controllers/auth_intra";
-import { userAccountCreation } from "../utils/userCreation.js";
 
 export const healthCheck = (req: FastifyRequest, resp: FastifyReply) => {
-  console.log("valid endpoint hit , backend is UP");
   resp.status(200).send({ message: "Valid /healthCheck hit" });
 };
 
