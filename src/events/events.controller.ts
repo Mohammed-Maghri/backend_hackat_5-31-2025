@@ -12,6 +12,7 @@ import { userDatabaseSchema } from "../types/userAuthData.js";
 import { eventBody } from "../types/queryType.js";
 import { sendPushNotification } from "../utils/notificationSender.js";
 import { RemoteInfo } from "dgram";
+import fastifyCors from "@fastify/cors";
 
 export const eventCreation = async (
   req: FastifyRequest,
@@ -93,7 +94,7 @@ export const eventCreation = async (
       ],
       command_instraction: null,
     });
-    console.log("Tokens ------------------------");
+
     if (result === -1) {
       return resp.status(400).send({ error: "Failed to insert event data" });
     }
@@ -122,20 +123,41 @@ export const eventCreation = async (
 
 const queryGetEventsWithAvatarPic = async (
   queryFilter: queryObject,
-  server: FastifyInstance
+  server: FastifyInstance,
+  id: string // default to 0 if not provided
 ) => {
   try {
     const search = shouldSearch(queryFilter);
     let query = "";
     if (search != null) {
-      query = `SELECT events.*, users.images, users.login FROM events
-    JOIN users ON events.creator_id = users.id ${search}`;
+      query = `SELECT 
+    events.*, 
+    users.images, 
+    users.login,
+    CASE 
+        WHEN favorite.user_id IS NOT NULL THEN 1 
+        ELSE 0 
+    END AS is_favorited
+FROM events
+JOIN users ON events.creator_id = users.id
+LEFT JOIN favorite ON favorite.event_id = events.id AND favorite.user_id = ${id}
+${search}`;
     } else {
-      query = `SELECT events.*, users.images , users.login FROM events
-    JOIN users ON events.creator_id = users.id`;
+      query = `SELECT 
+    events.*, 
+    users.images, 
+    users.login,
+    CASE 
+        WHEN favorite.user_id IS NOT NULL THEN 1 
+        ELSE 0 
+    END AS is_favorited
+FROM events
+JOIN users ON events.creator_id = users.id
+LEFT JOIN favorite ON favorite.event_id = events.id AND favorite.user_id = ${id}`;
     }
     console.log("Executing query:", query);
     const searchResult = await server.db.all(query);
+    console.log("Search result ----> :", searchResult);
     return searchResult;
   } catch (error) {
     throw new Error("Error fetching events with avatar pictures");
@@ -145,6 +167,8 @@ const queryGetEventsWithAvatarPic = async (
 export const eventEndPoint = async (req: FastifyRequest, res: FastifyReply) => {
   try {
     // console.log("eventEndPoint called with query:", req.query);
+    await req.jwtVerify();
+    const user: user_authData = (await req.jwtDecode()) as user_authData; // get user data from JWT
     const geterOject = req.query as queryObject;
     const queryFilter: queryObject = {
       title: (geterOject.title as string) || "",
@@ -154,7 +178,12 @@ export const eventEndPoint = async (req: FastifyRequest, res: FastifyReply) => {
       page: (geterOject.page as string) || "",
     };
     // console.log(await queryGetEventsWithAvatarPic(queryFilter, req.server));
-    const events = await queryGetEventsWithAvatarPic(queryFilter, req.server);
+    const events = await queryGetEventsWithAvatarPic(
+      queryFilter,
+      req.server,
+      user.id.toString()
+    );
+    console.log(" =-===> ", events);
     return res.status(200).send(events);
   } catch (e) {
     return res.status(400).send({ status: "Error !" });
@@ -177,20 +206,12 @@ export const eventRegister = async (req: FastifyRequest, res: FastifyReply) => {
       table_name: "events",
       command_instraction: `WHERE id = "${eventInfos.eventId}"`,
     })) as eventData[];
-    console.log("Event data: ", eventData);
+    console.log("Event data:  -----<> ", eventData);
     if (parseInt(eventData[0].slots) === parseInt(eventData[0].total_slots)) {
       return res
         .status(400)
         .send({ error: "No slots available for this event" });
     }
-
-    await Orm_db.update({
-      server: req.server,
-      table_name: "events",
-      colums_name: ["slots"],
-      colums_values: [parseInt(eventData[0].slots) + 1],
-      condition: `WHERE id = "${eventInfos.eventId}"`,
-    });
 
     const CheckingError: unknown = await Orm_db.insertion({
       server: req.server,
@@ -202,6 +223,13 @@ export const eventRegister = async (req: FastifyRequest, res: FastifyReply) => {
     if (CheckingError === -1) {
       return res.status(400).send({ error: "Registration failed" });
     }
+    await Orm_db.update({
+      server: req.server,
+      table_name: "events",
+      colums_name: ["slots"],
+      colums_values: [parseInt(eventData[0].slots) + 1],
+      condition: `WHERE id = "${eventInfos.eventId}"`,
+    });
   } catch (err) {
     console.error("JWT verification failed:", err);
     return res.status(401).send({ error: "Unauthorized" });
@@ -228,7 +256,6 @@ export const eventUnregister = async (
         .status(400)
         .send({ error: "You are not registered for this event" });
     }
-    console.log(" --------- --- ->< ", checkRegisterValidity);
 
     const eventData: eventData[] = (await Orm_db.selection({
       server: req.server,
@@ -247,7 +274,7 @@ export const eventUnregister = async (
       server: req.server,
       table_name: "events",
       colums_name: ["slots"],
-      colums_values: [parseInt(eventData[0].slots) + 1],
+      colums_values: [parseInt(eventData[0].slots) - 1],
       condition: `WHERE id = "${eventInfos.eventId}"`,
     });
 
@@ -356,8 +383,6 @@ export const eventAllCategories = async (
 ) => {
   try {
     await req.jwtVerify();
-    const userData: user_authData = await req.jwtDecode();
-    // console.log("getting categories of all events");
     const fetchedCategories = (await Orm_db.selection({
       server: req.server,
       table_name: "categories",
@@ -367,7 +392,6 @@ export const eventAllCategories = async (
     if (fetchedCategories.length === 0) {
       return resp.status(404).send({ message: "No categories found" });
     }
-    // console.log("Categories fetched successfully", fetchedCategories);
     return resp.status(200).send(fetchedCategories);
   } catch (error) {
     console.error("Thrown error --->", error);
@@ -437,5 +461,104 @@ export const eventEndPointRegisterChecker = async (
   } catch (err) {
     console.error("JWT verification failed Or sql Injection error", err);
     return resp.status(401).send({ error: "Unauthorized" });
+  }
+};
+
+// -------------  Favvorites -----------
+const QueryEventFavorite = (id: string) => {
+  // Needs To Work OnAdd commentMore actions
+  return ` SELECT events.* , favorite.event_id FROM favorite 
+  LEFT JOIN events ON  
+  favorite.event_id  == events.id ; 
+  WHERE favorite.user_id = "${id}"`;
+};
+
+export const eventAddToFavorite = async (
+  req: FastifyRequest,
+  resp: FastifyReply
+) => {
+  try {
+    await req.jwtVerify();
+    const user: user_authData = (await req.jwtDecode()) as user_authData;
+    const eventId = req.body as { eventId: string };
+    if (!eventId) {
+      return resp.status(400).send({ error: "Event ID is required" });
+    }
+    const result = await Orm_db.insertion({
+      server: req.server,
+      table_name: "favorite",
+      colums_name: ["user_id", "event_id"],
+      colums_values: [user.id, eventId.eventId],
+      command_instraction: null,
+    });
+
+    if (result === -1) {
+      console.log(" ==? ", result);
+      return resp
+        .status(400)
+        .send({ error: "Failed to add event to favorites" });
+    }
+    return resp.status(200).send({ message: "Event added to favorites" });
+  } catch (err) {
+    console.error("Error in adding event to favorites:", err);
+    return resp
+      .status(401)
+      .send({ error: "Error in adding event to favorites" });
+  }
+};
+
+export const eventDeleteFromFavorite = async (
+  req: FastifyRequest,
+  resp: FastifyReply
+) => {
+  try {
+    await req.jwtVerify();
+    const user: user_authData = (await req.jwtDecode()) as user_authData;
+    const eventId = req.body as { eventId: string };
+    if (!eventId) {
+      return resp.status(400).send({ error: "Event ID is required" });
+    }
+    const result = await Orm_db.deletion({
+      server: req.server,
+      table_name: "favorite",
+      condition: `WHERE user_id = "${user.id}" AND event_id = "${eventId.eventId}"`,
+    });
+    if (result === -1) {
+      return resp
+        .status(400)
+        .send({ error: "Failed to remove event from favorites" });
+    }
+    return resp.status(200).send({ message: "Event removed from favorites" });
+  } catch (err) {
+    console.error("Error in removing event from favorites:", err);
+    return resp
+      .status(401)
+      .send({ error: "Error in removing event from favorites" });
+  }
+};
+
+export const eventFavoriteList = async (
+  req: FastifyRequest,
+  resp: FastifyReply
+) => {
+  try {
+    await req.jwtVerify();
+    const user: user_authData = (await req.jwtDecode()) as user_authData;
+    console.log("= ===> ", QueryEventFavorite(user.id.toString()));
+    const favoriteEvents = await req.server.db.all(
+      QueryEventFavorite(user.id.toString())
+    );
+    if (favoriteEvents.length === 0) {
+      return resp.status(200).send({ message: "No favorite events found" });
+    }
+    const addisFavorite = favoriteEvents.map((event) => {
+      const allEvent = {  ...event , is_favorited: true };
+      return allEvent;
+    });
+
+    return resp.status(200).send(addisFavorite);
+  } catch (err) {
+    console.error("Error in fetching favorite events:", err);
+    return resp.status(401).send({ error: "Error in getting favorite events" });
   }
 };

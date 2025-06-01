@@ -15,7 +15,10 @@ import {
   adminEventVerify,
   eventAllCategories,
   eventAllRegistered,
-  eventEndPointRegisterChecker
+  eventEndPointRegisterChecker,
+  eventFavoriteList,
+  eventAddToFavorite,
+  eventDeleteFromFavorite,
 } from "./events.controller.js";
 
 export const eventRoutes = (fastify: FastifyInstance) => {
@@ -86,11 +89,36 @@ export const eventRoutes = (fastify: FastifyInstance) => {
     url: "/event/user/registeredevents",
     handler: eventAllRegistered,
   });
-   // he will pass the event id and return if registered or not
+  // he will pass the event id and return if registered or not
   fastify.route({
-    method : "GET",
-    url : "/event/user/:id",
-    handler : eventEndPointRegisterChecker,
-  })
-
+    method: "GET",
+    url: "/event/user/:id",
+    handler: eventEndPointRegisterChecker,
+  });
+  fastify.route({
+    method: "GET",
+    url: "/event/list/favorite",
+    schema: {
+      headers: zodToJsonSchema(headerEventRegister),
+    },
+    handler: eventFavoriteList,
+  });
+  fastify.route({
+    method: "POST",
+    url: "/event/add/favorite",
+    schema: {
+      headers: zodToJsonSchema(headerEventRegister),
+      body: zodToJsonSchema(bodyEventRegister),
+    },
+    handler: eventAddToFavorite,
+  });
+  fastify.route({
+    method: "POST",
+    url: "/event/delete/favorite",
+    schema: {
+      headers: zodToJsonSchema(headerEventRegister),
+      body: zodToJsonSchema(bodyEventRegister),
+    },
+    handler: eventDeleteFromFavorite,
+  });
 };

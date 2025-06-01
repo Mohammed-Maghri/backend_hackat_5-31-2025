@@ -12,7 +12,7 @@ const fastify: FastifyInstance = Fastify({
 const PORT = parseInt(process.env.PORT || "8000", 10);
 
 await fastify.register(import("@fastify/rate-limit"), {
-  max: 60,
+  max: 100,
   timeWindow: "1 minute",
 });
 await initDatabase();
