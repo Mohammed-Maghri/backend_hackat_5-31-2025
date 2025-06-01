@@ -15,6 +15,7 @@ import {
   adminEventVerify,
   eventAllCategories,
   eventAllRegistered,
+  eventAddToFavorite
 } from "./events.controller.js";
 
 export const eventRoutes = (fastify: FastifyInstance) => {
@@ -82,5 +83,14 @@ export const eventRoutes = (fastify: FastifyInstance) => {
     method: "GET",
     url: "/event/user/registeredevents",
     handler: eventAllRegistered,
+  });
+
+  fastify.route({
+    method: "GET",
+    url: "/event/list/favorites",
+    schema: {
+      headers: zodToJsonSchema(headerEventRegister),
+    },
+    handler: eventAddToFavorite,
   });
 };

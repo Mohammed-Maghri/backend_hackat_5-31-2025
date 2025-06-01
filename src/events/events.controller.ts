@@ -152,7 +152,7 @@ export const eventEndPoint = async (req: FastifyRequest, res: FastifyReply) => {
       end_date: (geterOject.end_date as string) || "",
       page: (geterOject.page as string) || "",
     };
-    console.log(await queryGetEventsWithAvatarPic(queryFilter, req.server))
+    console.log(await queryGetEventsWithAvatarPic(queryFilter, req.server));
     const events = await queryGetEventsWithAvatarPic(queryFilter, req.server);
     return res.status(200).send(events);
   } catch (e) {
@@ -396,5 +396,59 @@ export const eventAllRegistered = async (
     return resp
       .status(401)
       .send({ error: "Error in getting registered events" });
+  }
+};
+
+const QueryEventFavorite = (id: string) => {
+  // Needs To Work On
+  return `SELECT * , users.* FROM favorites JOIN WHERE user_id = "${id}"`;
+};
+
+export const eventAddToFavorite = async (req: FastifyRequest, resp: FastifyReply) => {
+  try {
+    await req.jwtVerify();
+    const user: user_authData = (await req.jwtDecode()) as user_authData;
+    const eventId = req.body as { event_id: string };
+    if (!eventId) {
+      return resp.status(400).send({ error: "Event ID is required" });
+    }
+    const result = await Orm_db.insertion({
+      server: req.server,
+      table_name: "favorites",
+      colums_name: ["user_id", "event_id"],
+      colums_values: [user.id, eventId.event_id],
+      command_instraction: null,
+    });
+    if (result === -1) {
+      return resp
+        .status(400)
+        .send({ error: "Failed to add event to favorites" });
+    }
+    return resp.status(200).send({ message: "Event added to favorites" });
+  } catch (err) {
+    console.error("Error in adding event to favorites:", err);
+    return resp
+      .status(401)
+      .send({ error: "Error in adding event to favorites" });
+  }
+};
+
+const eventFavoriteList = async (req: FastifyRequest, resp: FastifyReply) => {
+  try {
+    await req.jwtVerify();
+    const user: user_authData = (await req.jwtDecode()) as user_authData;
+    const favoriteEvents = (await Orm_db.selection({
+      server: req.server,
+      table_name: "favorites",
+      colums_name: ["event_id"],
+      command_instraction: `WHERE user_id = "${user.id}"`,
+    })) as { event_id: string }[];
+    if (favoriteEvents.length === 0) {
+      return resp.status(200).send({ message: "No favorite events found" });
+    }
+    return resp.status(200).send(favoriteEvents);
+  } catch (err) {
+    console.error("Error in fetching favorite events:", err);
+    return resp.status(401).send({ error: "Error in getting favorite events" });
   }
 };

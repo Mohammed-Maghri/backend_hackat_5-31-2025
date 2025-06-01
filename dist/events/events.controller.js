@@ -333,3 +333,25 @@ export const eventAllCategories = async (req, resp) => {
         return resp.badRequest("Error in getting categories");
     }
 };
+export const eventAllRegistered = async (req, resp) => {
+    try {
+        await req.jwtVerify();
+        const user = await req.jwtDecode();
+        const registeredEvents = (await Orm_db.selection({
+            server: req.server,
+            table_name: "registrations",
+            colums_name: ["event_id"],
+            command_instraction: `WHERE user_id = "${user.id}"`,
+        }));
+        if (registeredEvents.length === 0) {
+            return resp.status(200).send({ message: "No registered events found" });
+        }
+        return resp.status(200).send(registeredEvents);
+    }
+    catch (err) {
+        console.error("Error catched :", err);
+        return resp
+            .status(401)
+            .send({ error: "Error in getting registered events" });
+    }
+};
