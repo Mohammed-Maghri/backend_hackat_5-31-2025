@@ -1,5 +1,6 @@
 import { Orm_db } from "../orm.js";
 import { shouldSearch } from "../helpers/searchParser.js";
+import { sendPushNotification } from "../utils/notificationSender.js";
 export const eventCreation = async (req, resp) => {
     const eventData = req.body;
     try {
@@ -85,7 +86,12 @@ export const eventCreation = async (req, resp) => {
             command_instraction: null,
         }));
         console.log(userTokens, "Tokens ------------------------");
-        // need to send notif to user
+        if (userTokens.length > 0) {
+            for (const token of userTokens) {
+                console.log("Sending notification to token:", token);
+                await sendPushNotification(token, eventData);
+            }
+        }
         resp.status(200).send({ message: "/event endpoint hit" });
     }
     catch (e) {

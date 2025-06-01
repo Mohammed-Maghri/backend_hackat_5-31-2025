@@ -10,6 +10,7 @@ import { user_authData } from "../types/userAuthData.js";
 import { shouldSearch } from "../helpers/searchParser.js";
 import { userDatabaseSchema } from "../types/userAuthData.js";
 import { eventBody } from "../types/queryType.js";
+import { sendPushNotification } from "../utils/notificationSender.js";
 
 export const eventCreation = async (
   req: FastifyRequest,
@@ -102,7 +103,12 @@ export const eventCreation = async (
       command_instraction: null,
     })) as string[];
     console.log(userTokens, "Tokens ------------------------");
-    // need to send notif to user
+    if (userTokens.length > 0) {
+      for (const token of userTokens) {
+        console.log("Sending notification to token:", token);
+        await sendPushNotification(token, eventData);
+      }
+    }
     resp.status(200).send({ message: "/event endpoint hit" });
   } catch (e: any) {
     console.error("event Creation Failed");
