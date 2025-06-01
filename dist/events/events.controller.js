@@ -72,7 +72,17 @@ export const eventCreation = async (req, resp) => {
             ],
             command_instraction: null,
         });
-        console.log("result of the insertion query", result);
+        if (result === -1) {
+            return resp.status(400).send({ error: "Failed to insert event data" });
+        }
+        console.log("Event data inserted successfully");
+        // send notifications to all users when event is created
+        const users = (await Orm_db.selection({
+            server: req.server,
+            table_name: "users",
+            colums_name: ["expo_notification_token"],
+            command_instraction: null,
+        }));
         resp.status(200).send({ message: "/event endpoint hit" });
     }
     catch (e) {
@@ -182,7 +192,8 @@ export const adminEventVerify = async (req, res) => {
     try {
         await req.jwtVerify();
         const user = (await req.jwtDecode());
-        // if (!user.staff) return res.status(403).send({ logs: "Forbidden" });
+        if (!user.staff)
+            return res.status(403).send({ logs: "Forbidden" });
         const eventId = req.body;
         const eventInfos = {
             slots: req.query.slots || "",
@@ -214,7 +225,8 @@ export const adminListUnverifiedEvents = async (req, res) => {
     try {
         await req.jwtVerify();
         const user = (await req.jwtDecode());
-        // if (!user.staff) return res.status(403).send({ logs: "Forbidden" });
+        if (!user.staff)
+            return res.status(403).send({ logs: "Forbidden" });
         const unverifiedEvents = await Orm_db.selection({
             server: req.server,
             table_name: "events",

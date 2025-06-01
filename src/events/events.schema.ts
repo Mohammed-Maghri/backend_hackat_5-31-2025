@@ -84,5 +84,4 @@ export const bodyEventRegister = z.object({
   eventId: z.number(),
 });
 
-
 export type eventParamsType = z.infer<typeof eventParamsSchema>;

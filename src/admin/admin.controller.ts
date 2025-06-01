@@ -1,6 +1,7 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { Orm_db } from "../orm.js";
 import { userDatabaseSchema, user_authData } from "../types/userAuthData";
+import { CategoryAddSchemaType } from "./admin.schema.js";
 
 // work on the privileges of the admin, test with valid admin user, and test the endpoint
 export const addAdminPriveleges = async (
@@ -83,6 +84,7 @@ export const addEventCategory = async (
     if (user.login === "abablil") {
       isStaff = true;
     }
+
     if (!isStaff) {
       if (!dbUser || dbUser.length === 0) {
         // User NOT in DB → Check JWT staff flag
@@ -105,9 +107,7 @@ export const addEventCategory = async (
       }
     }
     //  Extract and validate category data
-    const { category } = req.body as {
-      category: string;
-    };
+    const { category } = req.body as CategoryAddSchemaType;
     if (!category || category.trim().length < 3) {
       return res.status(400).send({
         error: "Category name is required and must be at least 3 characters",

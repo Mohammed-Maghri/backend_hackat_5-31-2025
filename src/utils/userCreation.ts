@@ -19,8 +19,12 @@ export const userAccountCreation = async (
     console.log("User already exists, skipping account creation.");
     return;
   }
+  // needs to get the expoPushToken from the userData
+  const { expo_notification_token } = request.query as {
+    expo_notification_token?: string;
+  };
   console.log("Creating user account...");
-  const result = await Orm_db.insertion({
+  const res = await Orm_db.insertion({
     server: request.server,
     table_name: "users",
     colums_name: [
@@ -31,6 +35,7 @@ export const userAccountCreation = async (
       "images",
       "role",
       "club_staff",
+      "expo_notification_token",
     ],
     colums_values: [
       userData.first_name,
@@ -40,7 +45,9 @@ export const userAccountCreation = async (
       userData.images,
       userData.staff,
       false,
+      expo_notification_token ? expo_notification_token : "",
     ],
     command_instraction: null,
   });
+  console.log(res, "this is the result of insertion of user query");
 };

@@ -2,7 +2,6 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { user_authData } from "../types/userAuthData";
 import { feedbackSchemaType } from "./feedback.schema";
 import { Orm_db } from "../orm.js";
-import { Params } from "zod/v4/core";
 
 // function check if the event exists, if so ,checks if the user has already feedbacked the event, if not, inserts the feedback
 export const addFeedback = async (
@@ -21,7 +20,7 @@ export const addFeedback = async (
     command_instraction: `WHERE id = "${body.event_id}"`,
   })) as number[];
   if (checkEventPresence.length === 0) {
-    return reply.badRequest("Event not found");
+    return reply.notFound("Event not found");
   }
   //checking if the user has already feedbacked the event
   const result = (await Orm_db.selection({
@@ -95,7 +94,7 @@ export const getFeedbackByEventId = async (
   })) as number[];
 
   if (checkEventPresence.length === 0) {
-    return reply.status(400).send({ message: "Event not found" });
+    return reply.status(404).send({ message: "Event not found" });
   }
   // if the event exists, get the feedbacks
   const eventFeedbacks = (await Orm_db.selection({
