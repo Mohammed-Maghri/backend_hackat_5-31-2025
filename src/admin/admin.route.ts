@@ -12,10 +12,10 @@ export const adminRoutes = (fastify: FastifyInstance) => {
   });
 
   fastify.route({
-    method: "POST",
+    method: "GET",
     url: "/admin/addCategory",
     schema: {
-      body: zodToJsonSchema(categoryAddSchema),
+      querystring: zodToJsonSchema(categoryAddSchema),
     },
     handler: addEventCategory,
   });

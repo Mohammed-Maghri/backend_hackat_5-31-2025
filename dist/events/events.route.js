@@ -1,8 +1,14 @@
 import { eventCreation } from "./events.controller.js";
 import { eventCreationSchema, eventParamsSchema, headerEventRegister, bodyEventRegister, } from "./events.schema.js";
 import zodToJsonSchema from "zod-to-json-schema";
-import { eventEndPoint, eventRegister, eventUnregister, adminListUnverifiedEvents, adminEventVerify, } from "./events.controller.js";
+import { eventEndPoint, eventRegister, eventUnregister, adminListUnverifiedEvents, adminEventVerify, eventAllCategories, } from "./events.controller.js";
 export const eventRoutes = (fastify) => {
+    fastify.route({
+        method: "GET",
+        url: "/event/categories",
+        handler: eventAllCategories,
+    });
+    // creating an event
     fastify.route({
         method: "POST",
         url: "/addEvent",

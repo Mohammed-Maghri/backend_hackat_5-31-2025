@@ -13,9 +13,16 @@ import {
   eventUnregister,
   adminListUnverifiedEvents,
   adminEventVerify,
+  eventAllCategories,
 } from "./events.controller.js";
 
 export const eventRoutes = (fastify: FastifyInstance) => {
+  fastify.route({
+    method: "GET",
+    url: "/event/categories",
+    handler: eventAllCategories,
+  });
+  // creating an event
   fastify.route({
     method: "POST",
     url: "/addEvent",
@@ -24,6 +31,7 @@ export const eventRoutes = (fastify: FastifyInstance) => {
     },
     handler: eventCreation,
   });
+
   fastify.route({
     method: "GET",
     url: "/event",
@@ -32,6 +40,7 @@ export const eventRoutes = (fastify: FastifyInstance) => {
     },
     handler: eventEndPoint,
   });
+
   fastify.route({
     method: "POST",
     url: "/event/register",

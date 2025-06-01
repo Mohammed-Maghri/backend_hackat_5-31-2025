@@ -107,7 +107,7 @@ export const addEventCategory = async (
       }
     }
     //  Extract and validate category data
-    const { category } = req.body as CategoryAddSchemaType;
+    const { category } = req.query as CategoryAddSchemaType;
     if (!category || category.trim().length < 3) {
       return res.status(400).send({
         error: "Category name is required and must be at least 3 characters",
