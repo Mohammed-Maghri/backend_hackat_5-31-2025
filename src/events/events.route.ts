@@ -86,7 +86,7 @@ export const eventRoutes = (fastify: FastifyInstance) => {
   });
 
   fastify.route({
-    method: "GET",
+    method: "POST",
     url: "/event/list/favorites",
     schema: {
       headers: zodToJsonSchema(headerEventRegister),

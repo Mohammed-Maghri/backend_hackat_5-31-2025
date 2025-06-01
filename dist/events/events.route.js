@@ -1,7 +1,7 @@
 import { eventCreation } from "./events.controller.js";
 import { eventCreationSchema, eventParamsSchema, headerEventRegister, bodyEventRegister, } from "./events.schema.js";
 import zodToJsonSchema from "zod-to-json-schema";
-import { eventEndPoint, eventRegister, eventUnregister, adminListUnverifiedEvents, adminEventVerify, eventAllCategories, eventAllRegistered, } from "./events.controller.js";
+import { eventEndPoint, eventRegister, eventUnregister, adminListUnverifiedEvents, adminEventVerify, eventAllCategories, eventAllRegistered, eventAddToFavorite } from "./events.controller.js";
 export const eventRoutes = (fastify) => {
     fastify.route({
         method: "GET",
@@ -61,5 +61,13 @@ export const eventRoutes = (fastify) => {
         method: "GET",
         url: "/event/user/registeredevents",
         handler: eventAllRegistered,
+    });
+    fastify.route({
+        method: "POST",
+        url: "/event/list/favorites",
+        schema: {
+            headers: zodToJsonSchema(headerEventRegister),
+        },
+        handler: eventAddToFavorite,
     });
 };

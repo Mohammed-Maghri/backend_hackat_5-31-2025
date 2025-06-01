@@ -123,7 +123,7 @@ const queryGetEventsWithAvatarPic = async (queryFilter, server) => {
 };
 export const eventEndPoint = async (req, res) => {
     try {
-        console.log("eventEndPoint called with query:", req.query);
+        // console.log("eventEndPoint called with query:", req.query);
         const geterOject = req.query;
         const queryFilter = {
             title: geterOject.title || "",
@@ -132,7 +132,7 @@ export const eventEndPoint = async (req, res) => {
             end_date: geterOject.end_date || "",
             page: geterOject.page || "",
         };
-        console.log(await queryGetEventsWithAvatarPic(queryFilter, req.server));
+        // console.log(await queryGetEventsWithAvatarPic(queryFilter, req.server));
         const events = await queryGetEventsWithAvatarPic(queryFilter, req.server);
         return res.status(200).send(events);
     }
@@ -315,7 +315,7 @@ export const eventAllCategories = async (req, resp) => {
     try {
         await req.jwtVerify();
         const userData = await req.jwtDecode();
-        console.log("getting categories of all events");
+        // console.log("getting categories of all events");
         const fetchedCategories = (await Orm_db.selection({
             server: req.server,
             table_name: "categories",
@@ -325,7 +325,7 @@ export const eventAllCategories = async (req, resp) => {
         if (fetchedCategories.length === 0) {
             return resp.status(404).send({ message: "No categories found" });
         }
-        console.log("Categories fetched successfully", fetchedCategories);
+        // console.log("Categories fetched successfully", fetchedCategories);
         return resp.status(200).send(fetchedCategories);
     }
     catch (error) {
@@ -353,5 +353,60 @@ export const eventAllRegistered = async (req, resp) => {
         return resp
             .status(401)
             .send({ error: "Error in getting registered events" });
+    }
+};
+const QueryEventFavorite = (id) => {
+    // Needs To Work On
+    return `SELECT * , users.* FROM favorites JOIN WHERE user_id = "${id}"`;
+};
+export const eventAddToFavorite = async (req, resp) => {
+    try {
+        console.log(' ----------- !~');
+        await req.jwtVerify();
+        const user = (await req.jwtDecode());
+        const eventId = req.body;
+        if (!eventId) {
+            return resp.status(400).send({ error: "Event ID is required" });
+        }
+        console.log(" ==> ", user?.id, eventId?.event_id);
+        const result = await Orm_db.insertion({
+            server: req.server,
+            table_name: "favorite",
+            colums_name: ["user_id", "event_id"],
+            colums_values: [user.id, eventId.event_id],
+            command_instraction: null,
+        });
+        if (result === -1) {
+            return resp
+                .status(400)
+                .send({ error: "Failed to add event to favorites" });
+        }
+        return resp.status(200).send({ message: "Event added to favorites" });
+    }
+    catch (err) {
+        console.error("Error in adding event to favorites:", err);
+        return resp
+            .status(401)
+            .send({ error: "Error in adding event to favorites" });
+    }
+};
+const eventFavoriteList = async (req, resp) => {
+    try {
+        await req.jwtVerify();
+        const user = (await req.jwtDecode());
+        const favoriteEvents = (await Orm_db.selection({
+            server: req.server,
+            table_name: "favorites",
+            colums_name: ["event_id"],
+            command_instraction: `WHERE user_id = "${user.id}"`,
+        }));
+        if (favoriteEvents.length === 0) {
+            return resp.status(200).send({ message: "No favorite events found" });
+        }
+        return resp.status(200).send(favoriteEvents);
+    }
+    catch (err) {
+        console.error("Error in fetching favorite events:", err);
+        return resp.status(401).send({ error: "Error in getting favorite events" });
     }
 };
