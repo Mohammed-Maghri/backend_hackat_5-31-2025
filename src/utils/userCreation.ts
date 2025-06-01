@@ -49,5 +49,9 @@ export const userAccountCreation = async (
     ],
     command_instraction: null,
   });
-  console.log(res, "this is the result of insertion of user query");
+  console.log(
+    res,
+    expo_notification_token,
+    "this is the result of insertion of user query"
+  );
 };

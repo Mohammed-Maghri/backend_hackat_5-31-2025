@@ -20,6 +20,7 @@ export const eventCreation = async (req, resp) => {
             colums_name: ["*"],
             command_instraction: `WHERE login = '${user.login}'`,
         }));
+        console.log(userDbData, "User data fetched from DB");
         if (userDbData.length === 0) {
             console.log("No existing user");
             return resp.badRequest("User not found");
@@ -77,17 +78,19 @@ export const eventCreation = async (req, resp) => {
         }
         console.log("Event data inserted successfully");
         // send notifications to all users when event is created
-        const users = (await Orm_db.selection({
+        const userTokens = (await Orm_db.selection({
             server: req.server,
             table_name: "users",
             colums_name: ["expo_notification_token"],
             command_instraction: null,
         }));
+        console.log(userTokens, "Tokens ------------------------");
+        // need to send notif to user
         resp.status(200).send({ message: "/event endpoint hit" });
     }
     catch (e) {
-        console.error("Error inserting event data:", e);
-        resp.status(500).send({ error: "Failed to insert event data" });
+        console.error("event Creation Failed");
+        resp.status(400).send({ error: "Failed to insert event data" });
         return;
     }
 };
@@ -250,5 +253,27 @@ export const adminListUnverifiedEvents = async (req, res) => {
     catch (err) {
         console.error("Error fetching unverified events:", err);
         return res.status(500).send({ error: "Failed to fetch unverified events" });
+    }
+};
+export const eventAllCategories = async (req, resp) => {
+    try {
+        await req.jwtVerify();
+        const userData = await req.jwtDecode();
+        console.log("getting categories of all events");
+        const fetchedCategories = (await Orm_db.selection({
+            server: req.server,
+            table_name: "categories",
+            colums_name: ["id", "category_name"],
+            command_instraction: null,
+        }));
+        if (fetchedCategories.length === 0) {
+            return resp.status(404).send({ message: "No categories found" });
+        }
+        console.log("Categories fetched successfully", fetchedCategories);
+        return resp.status(200).send(fetchedCategories);
+    }
+    catch (error) {
+        console.error("Thrown error --->", error);
+        return resp.badRequest("Error in getting categories");
     }
 };
