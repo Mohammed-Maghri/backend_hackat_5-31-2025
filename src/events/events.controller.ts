@@ -144,7 +144,7 @@ const queryGetEventsWithAvatarPic = async (
 
 export const eventEndPoint = async (req: FastifyRequest, res: FastifyReply) => {
   try {
-    console.log("eventEndPoint called with query:", req.query);
+    // console.log("eventEndPoint called with query:", req.query);
     const geterOject = req.query as queryObject;
     const queryFilter: queryObject = {
       title: (geterOject.title as string) || "",
@@ -153,7 +153,7 @@ export const eventEndPoint = async (req: FastifyRequest, res: FastifyReply) => {
       end_date: (geterOject.end_date as string) || "",
       page: (geterOject.page as string) || "",
     };
-    console.log(await queryGetEventsWithAvatarPic(queryFilter, req.server));
+    // console.log(await queryGetEventsWithAvatarPic(queryFilter, req.server));
     const events = await queryGetEventsWithAvatarPic(queryFilter, req.server);
     return res.status(200).send(events);
   } catch (e) {
@@ -357,7 +357,7 @@ export const eventAllCategories = async (
   try {
     await req.jwtVerify();
     const userData: user_authData = await req.jwtDecode();
-    console.log("getting categories of all events");
+    // console.log("getting categories of all events");
     const fetchedCategories = (await Orm_db.selection({
       server: req.server,
       table_name: "categories",
@@ -367,7 +367,7 @@ export const eventAllCategories = async (
     if (fetchedCategories.length === 0) {
       return resp.status(404).send({ message: "No categories found" });
     }
-    console.log("Categories fetched successfully", fetchedCategories);
+    // console.log("Categories fetched successfully", fetchedCategories);
     return resp.status(200).send(fetchedCategories);
   } catch (error) {
     console.error("Thrown error --->", error);
