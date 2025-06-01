@@ -418,15 +418,15 @@ export const eventEndPointRegisterChecker = async (
   try {
     await req.jwtVerify();
     const userdata: user_authData = await req.jwtDecode();
-    const eventInfos: registerEventTypes = req.params as registerEventTypes;
-    if (!eventInfos.eventId) {
+    const eventInfos: {id  : number} = req.params as {id : number};
+    if (!eventInfos.id) {
       return resp.status(400).send({ error: "Event ID is required" });
     }
     const registrationCheck = (await Orm_db.selection({
       server: req.server,
       table_name: "registrations",
       colums_name: ["*"],
-      command_instraction: `WHERE user_id = "${userdata.id}" AND event_id = "${eventInfos.eventId}"`,
+      command_instraction: `WHERE user_id = "${userdata.id}" AND event_id = "${eventInfos.id}"`,
     })) as registerEventTypes[];
 
     if (registrationCheck.length > 0) {
