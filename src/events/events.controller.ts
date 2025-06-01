@@ -102,6 +102,7 @@ export const eventCreation = async (
       colums_name: ["expo_notification_token"],
       command_instraction: null,
     })) as string[];
+    
     console.log(userTokens, "Tokens ------------------------");
     if (userTokens.length > 0) {
       for (const token of userTokens) {
