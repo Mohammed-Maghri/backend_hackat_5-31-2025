@@ -17,3 +17,7 @@ export interface objectReturnAdminUpdate {
   columns_name: string[];
   columns_values: (string | number | boolean)[];
 }
+
+export interface eventBody {
+  eventId: number | string;
+}

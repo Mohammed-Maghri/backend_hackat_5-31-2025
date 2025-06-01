@@ -59,8 +59,12 @@ export const eventRoutes = (fastify: FastifyInstance) => {
   });
 
   fastify.route({
-    method: "GET",
+    method: "POST",
     url: "/event/admin/modify",
+    schema: {
+      headers: zodToJsonSchema(headerEventRegister),
+      body: zodToJsonSchema(bodyEventRegister),
+    },
     handler: adminEventVerify,
   });
 };
