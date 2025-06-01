@@ -130,12 +130,61 @@ export const eventUnregister = async (req, res) => {
     }
     res.status(200).send({ logs: "eventDelete endpoint hit !" });
 };
+const eventQueryVerify = (eventInfo) => {
+    let colums_append_array = [];
+    let colums_values_append_array = [];
+    if (eventInfo.status !== "") {
+        colums_append_array = [...colums_append_array, "status"];
+        colums_values_append_array.push(eventInfo.status);
+    }
+    if (eventInfo.slots !== "") {
+        colums_append_array = [...colums_append_array, "slots"];
+        colums_values_append_array.push(eventInfo.slots.toString());
+    }
+    if (eventInfo.latitude !== "") {
+        colums_append_array = [...colums_append_array, "latitude"];
+        colums_values_append_array.push(eventInfo.latitude.toString());
+    }
+    if (eventInfo.longitude !== "") {
+        colums_append_array = [...colums_append_array, "longitude"];
+        colums_values_append_array.push(eventInfo.longitude.toString());
+    }
+    if (colums_append_array.length > 0) {
+        return {
+            columns_name: colums_append_array,
+            columns_values: colums_values_append_array,
+        };
+    }
+    else
+        return null;
+};
+// Tomorrow, we will implement the adminEventVerify function
+// Everythin is ready, we just need to implement the query and Insert it with the orm_db
+// and the response 
 export const adminEventVerify = async (req, res) => {
     try {
         await req.jwtVerify();
         const user = (await req.jwtDecode());
-        if (!user.staff)
-            return res.status(403).send({ logs: "Forbidden" });
+        const eventInfos = {
+            slots: req.query.slots || "",
+            status: req.query.status || "",
+            latitude: req.query.latitude || "",
+            longitude: req.query.longitude || "",
+        };
+        const objectVerify = eventQueryVerify(eventInfos);
+        console.log(" --_< objectVerify>_-- ", objectVerify);
+        // const result = await Orm_db.update({
+        //   server: req.server,
+        //   table_name: "events",
+        //   colums_name: query.colums_name,
+        //   colums_values: query.colums_values,
+        //   command_instraction: `WHERE id = ${req.query.eventId}`,
+        // });
+        // if (result === -1) {
+        //   return res.status(400).send({ error: "Event verification failed" });
+        // }
+        // if (!user.staff) return res.status(403).send({ logs: "Forbidden" });
+        return res.status(200).send({ logs: "adminEventVerify endpoint hit !" });
     }
     catch (err) {
         console.error("JWT verification failed:", err);
