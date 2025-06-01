@@ -11,6 +11,7 @@ import { shouldSearch } from "../helpers/searchParser.js";
 import { userDatabaseSchema } from "../types/userAuthData.js";
 import { eventBody } from "../types/queryType.js";
 import { sendPushNotification } from "../utils/notificationSender.js";
+import { RemoteInfo } from "dgram";
 
 export const eventCreation = async (
   req: FastifyRequest,
@@ -407,5 +408,34 @@ export const eventAllRegistered = async (
     return resp
       .status(401)
       .send({ error: "Error in getting registered events" });
+  }
+};
+
+export const eventEndPointRegisterChecker = async (
+  req: FastifyRequest,
+  resp: FastifyReply
+) => {
+  try {
+    await req.jwtVerify();
+    const userdata: user_authData = await req.jwtDecode();
+    const eventInfos: registerEventTypes = req.params as registerEventTypes;
+    if (!eventInfos.eventId) {
+      return resp.status(400).send({ error: "Event ID is required" });
+    }
+    const registrationCheck = (await Orm_db.selection({
+      server: req.server,
+      table_name: "registrations",
+      colums_name: ["*"],
+      command_instraction: `WHERE user_id = "${userdata.id}" AND event_id = "${eventInfos.eventId}"`,
+    })) as registerEventTypes[];
+
+    if (registrationCheck.length > 0) {
+      return resp.status(200).send({ registered: true });
+    } else {
+      return resp.status(200).send({ registered: false });
+    }
+  } catch (err) {
+    console.error("JWT verification failed Or sql Injection error", err);
+    return resp.status(401).send({ error: "Unauthorized" });
   }
 };

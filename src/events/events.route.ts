@@ -15,6 +15,7 @@ import {
   adminEventVerify,
   eventAllCategories,
   eventAllRegistered,
+  eventEndPointRegisterChecker
 } from "./events.controller.js";
 
 export const eventRoutes = (fastify: FastifyInstance) => {
@@ -85,4 +86,11 @@ export const eventRoutes = (fastify: FastifyInstance) => {
     url: "/event/user/registeredevents",
     handler: eventAllRegistered,
   });
+   // he will pass the event id and return if registered or not
+  fastify.route({
+    method : "GET",
+    url : "/event/user/:id",
+    handler : eventEndPointRegisterChecker,
+  })
+
 };
