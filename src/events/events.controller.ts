@@ -72,6 +72,7 @@ export const eventCreation = async (
         "category_id",
         "creator_id",
         "slots",
+        "total_slots",
         "category_name",
       ],
       colums_values: [
@@ -85,6 +86,7 @@ export const eventCreation = async (
         status,
         eventData.category_id,
         userDbData[0].id,
+        eventData.slots,
         eventData.slots,
         categoryData[0].category_name,
       ],
@@ -101,7 +103,7 @@ export const eventCreation = async (
       colums_name: ["expo_notification_token"],
       command_instraction: null,
     })) as string[];
-    
+
     console.log(userTokens, "Tokens ------------------------");
     if (userTokens.length > 0) {
       for (const token of userTokens) {
@@ -217,10 +219,12 @@ export const eventUnregister = async (
       command_instraction: `WHERE user_id = "${user.id}" AND event_id = "${eventInfos.eventId}"`,
     })) as registerEventTypes[];
     if (checkRegisterValidity.length === 0) {
-      return res.status(400).send({ error: "You are not registered for this event" });
+      return res
+        .status(400)
+        .send({ error: "You are not registered for this event" });
     }
     console.log(" --------- --- ->< ", checkRegisterValidity);
-    
+
     const eventData: eventData[] = (await Orm_db.selection({
       server: req.server,
       colums_name: ["slots"],

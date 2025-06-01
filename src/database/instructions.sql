@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS events (
     creator_id INTEGER NOT NULL,
     category_name TEXT NOT NULL,
     slots INTEGER NOT NULL,
+    total_slots INTEGER NOT NULL,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_events_creator
         FOREIGN KEY (creator_id)
