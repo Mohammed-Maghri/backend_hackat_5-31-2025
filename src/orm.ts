@@ -31,6 +31,7 @@ const deletion = async ({ server, condition, table_name }: deletion_data) => {
     return -1;
   }
 };
+
 const insertion = async ({
   server,
   table_name,

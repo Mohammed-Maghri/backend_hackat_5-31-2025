@@ -390,7 +390,18 @@ export const eventAllRegistered = async (
     if (registeredEvents.length === 0) {
       return resp.status(200).send({ message: "No registered events found" });
     }
-    return resp.status(200).send(registeredEvents);
+    // Fetch event details for each registered event
+    const eventIds = registeredEvents.map((event) => event.event_id);
+    const eventsDetails = (await Orm_db.selection({
+      server: req.server,
+      table_name: "events",
+      colums_name: ["*"],
+      command_instraction: `WHERE id IN (${eventIds.join(",")})`,
+    })) as string[];
+    if (eventsDetails.length === 0) {
+      return resp.status(404).send({ message: "No event details found" });
+    }
+    return resp.status(200).send(eventsDetails);
   } catch (err) {
     console.error("Error catched :", err);
     return resp

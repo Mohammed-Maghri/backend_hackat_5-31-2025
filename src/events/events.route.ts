@@ -19,6 +19,7 @@ import {
 } from "./events.controller.js";
 
 export const eventRoutes = (fastify: FastifyInstance) => {
+  //getting all the categories of the events
   fastify.route({
     method: "GET",
     url: "/event/categories",
@@ -33,7 +34,7 @@ export const eventRoutes = (fastify: FastifyInstance) => {
     },
     handler: eventCreation,
   });
-
+  //get all the events in the db
   fastify.route({
     method: "GET",
     url: "/event",
@@ -42,7 +43,7 @@ export const eventRoutes = (fastify: FastifyInstance) => {
     },
     handler: eventEndPoint,
   });
-
+  //register to a specific event
   fastify.route({
     method: "POST",
     url: "/event/register",
@@ -53,6 +54,7 @@ export const eventRoutes = (fastify: FastifyInstance) => {
     handler: eventRegister,
   });
 
+  //unregister to a specific event
   fastify.route({
     method: "POST",
     url: "/event/unregister",
@@ -62,13 +64,13 @@ export const eventRoutes = (fastify: FastifyInstance) => {
     },
     handler: eventUnregister,
   });
-
+  // return the unverified events only to the admin
   fastify.route({
     method: "GET",
     url: "/event/admin/unverifiedevents",
     handler: adminListUnverifiedEvents,
   });
-
+  // lets the admin verify the specific unverified event
   fastify.route({
     method: "POST",
     url: "/event/admin/modify",
@@ -78,7 +80,7 @@ export const eventRoutes = (fastify: FastifyInstance) => {
     },
     handler: adminEventVerify,
   });
-
+  // return all the registered events of a user
   fastify.route({
     method: "GET",
     url: "/event/user/registeredevents",

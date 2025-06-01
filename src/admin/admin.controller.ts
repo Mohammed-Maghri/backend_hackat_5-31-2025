@@ -2,6 +2,7 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { Orm_db } from "../orm.js";
 import { userDatabaseSchema, user_authData } from "../types/userAuthData";
 import { CategoryAddSchemaType } from "./admin.schema.js";
+import { checkingUserPrivilege } from "../utils/privilegeChecker.js";
 
 // work on the privileges of the admin, test with valid admin user, and test the endpoint
 export const addAdminPriveleges = async (
@@ -143,5 +144,43 @@ export const addEventCategory = async (
   } catch (err: any) {
     console.error("Error in addEventCategory:", err);
     return res.status(401).send({ error: "Unauthorized" });
+  }
+};
+
+export const deleteEvent = async (
+  request: FastifyRequest,
+  response: FastifyReply
+) => {
+  try {
+    // Verify JWT and decode user info
+    await request.jwtVerify();
+    const userData: user_authData = await request.jwtDecode();
+    //check if the user is admin with the fuction checkingUserPrivilege
+    const privilegeCheck = await checkingUserPrivilege(
+      request,
+      response,
+      userData
+    );
+    if (privilegeCheck === -1) {
+      return response.status(403).send({ error: "Forbidden" });
+    }
+    // Extract event ID from query parameters
+    const { eventId } = request.query as { eventId: string };
+    if (!eventId) {
+      return response.status(400).send({ error: "Event ID is required" });
+    }
+    // Delete the event from the database
+    const DeleteResult = await Orm_db.deletion({
+      server: request.server,
+      table_name: "events",
+      condition: `WHERE id = "${eventId}"`,
+    });
+    if (DeleteResult === -1) {
+      return response.status(500).send({ error: "Failed to delete event" });
+    }
+    return response.status(200).send({ message: "Event deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting event:", error);
+    return response.status(400).send({ error: "Internal Server Error" });
   }
 };
