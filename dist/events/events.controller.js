@@ -65,9 +65,27 @@ export const eventCreation = async (req, resp) => {
         return;
     }
 };
+const queryGetEventsWithAvatarPic = async (queryFilter, server) => {
+    try {
+        const search = shouldSearch(queryFilter);
+        let query = "";
+        if (search != null) {
+            query = `SELECT events.*, users.images, users.login FROM events
+    JOIN users ON events.creator_id = users.id ${search}`;
+        }
+        else {
+            query = `SELECT events.*, users.images , users.login FROM events
+    JOIN users ON events.creator_id = users.id`;
+        }
+        const searchResult = await server.db.all(query);
+        return searchResult;
+    }
+    catch (error) {
+        throw new Error("Error fetching events with avatar pictures");
+    }
+};
 export const eventEndPoint = async (req, res) => {
     try {
-        console.log("testing api call");
         const geterOject = req.query;
         const queryFilter = {
             title: geterOject.title || "",
@@ -76,14 +94,8 @@ export const eventEndPoint = async (req, res) => {
             end_date: geterOject.end_date || "",
             page: geterOject.page || "",
         };
-        return res.status(200).send({
-            events: await Orm_db.selection({
-                server: req.server,
-                table_name: "events",
-                colums_name: ["*"],
-                command_instraction: shouldSearch(queryFilter),
-            }),
-        });
+        const events = await queryGetEventsWithAvatarPic(queryFilter, req.server);
+        return res.status(200).send(events);
     }
     catch (e) {
         return res.status(400).send({ status: "Error !" });

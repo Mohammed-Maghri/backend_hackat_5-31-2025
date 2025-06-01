@@ -17,7 +17,7 @@ export const envPlugin = fp(async (fastify) => {
     properties: {
       backend_endpoint: {
         type: "string",
-        default:"https://4ca0-197-230-30-146.ngrok-free.app",
+        default:"https://5be2-197-230-30-146.ngrok-free.app",
       },
       port: {
         type: "number",

@@ -1,4 +1,4 @@
-import { FastifyRequest, FastifyReply } from "fastify";
+import { FastifyRequest, FastifyReply, FastifyInstance } from "fastify";
 import { eventTypes, registerEventTypes } from "../types/eventType.js";
 import { Orm_db } from "../orm.js";
 import {
@@ -9,6 +9,7 @@ import {
 } from "../types/queryType.js";
 import { user_authData } from "../types/userAuthData.js";
 import { shouldSearch } from "../helpers/searchParser.js";
+import { ca } from "zod/v4/locales";
 
 export const eventCreation = async (
   req: FastifyRequest,
@@ -80,9 +81,29 @@ export const eventCreation = async (
   }
 };
 
+const queryGetEventsWithAvatarPic = async (
+  queryFilter: queryObject,
+  server: FastifyInstance
+) => {
+  try {
+    const search = shouldSearch(queryFilter);
+    let query = "";
+    if (search != null) {
+      query = `SELECT events.*, users.images, users.login FROM events
+    JOIN users ON events.creator_id = users.id ${search}`;
+    } else {
+      query = `SELECT events.*, users.images , users.login FROM events
+    JOIN users ON events.creator_id = users.id`;
+    }
+    const searchResult = await server.db.all(query);
+    return searchResult;
+  } catch (error) {
+    throw new Error("Error fetching events with avatar pictures");
+  }
+};
+
 export const eventEndPoint = async (req: FastifyRequest, res: FastifyReply) => {
   try {
-    console.log("testing api call");
     const geterOject = req.query as queryObject;
     const queryFilter: queryObject = {
       title: (geterOject.title as string) || "",
@@ -91,14 +112,8 @@ export const eventEndPoint = async (req: FastifyRequest, res: FastifyReply) => {
       end_date: (geterOject.end_date as string) || "",
       page: (geterOject.page as string) || "",
     };
-    return res.status(200).send({
-      events: await Orm_db.selection({
-        server: req.server,
-        table_name: "events",
-        colums_name: ["*"],
-        command_instraction: shouldSearch(queryFilter),
-      }),
-    });
+    const events = await queryGetEventsWithAvatarPic(queryFilter, req.server);
+    return res.status(200).send(events);
   } catch (e) {
     return res.status(400).send({ status: "Error !" });
   }
@@ -179,6 +194,7 @@ const eventQueryVerify = (eventInfo: eventQueryVerify) => {
 // Tomorrow, we will implement the adminEventVerify function
 // Everythin is ready, we just need to implement the query and Insert it with the orm_db
 // and the response
+
 export const adminEventVerify = async (
   req: FastifyRequest,
   res: FastifyReply
@@ -196,7 +212,8 @@ export const adminEventVerify = async (
     };
     const objectVerify: objectReturnAdminUpdate | null =
       eventQueryVerify(eventInfos);
-    if (!objectVerify) return res.status(400).send({ error: "No valid fields to update" });
+    if (!objectVerify)
+      return res.status(400).send({ error: "No valid fields to update" });
     const result = await Orm_db.update({
       server: req.server,
       table_name: "events",
