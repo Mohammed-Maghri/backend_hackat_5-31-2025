@@ -11,7 +11,7 @@ export const userRoutes = (fastify: FastifyInstance) => {
   });
 
   fastify.route({
-    method: "POST",
+    method: "GET",
     url: "/me",
     handler: getUserData,
   });

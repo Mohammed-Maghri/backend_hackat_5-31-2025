@@ -50,7 +50,7 @@ const auth_intra = async (req: FastifyRequest, res: FastifyReply) => {
       staff: data?.staff || false,
       images: data.image.versions.large,
     } as user_authData;
-    await userAccountCreation(req, userAuth);
+    await userAccountCreation((req.body as code_extract).expo_notification_token as string, req, userAuth);
     const user_id: idlogin[] = (await Orm_db.selection({
       server: req.server,
       table_name: "users",

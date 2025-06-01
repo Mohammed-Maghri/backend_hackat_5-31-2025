@@ -21,7 +21,6 @@ export const eventCreation = async (req, resp) => {
             colums_name: ["*"],
             command_instraction: `WHERE login = '${user.login}'`,
         }));
-        console.log(userDbData, "User data fetched from DB");
         if (userDbData.length === 0) {
             console.log("No existing user");
             return resp.badRequest("User not found");

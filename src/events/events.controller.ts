@@ -37,7 +37,6 @@ export const eventCreation = async (
       colums_name: ["*"],
       command_instraction: `WHERE login = '${user.login}'`,
     })) as userDatabaseSchema[];
-    console.log(userDbData, "User data fetched from DB");
     if (userDbData.length === 0) {
       console.log("No existing user");
       return resp.badRequest("User not found");

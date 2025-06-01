@@ -4,7 +4,7 @@ export const shouldSearch = (queryFilter: queryObject) => {
   let search_ToAppend = "";
   if (queryFilter.title !== "") {
     if (search_ToAppend !== "") search_ToAppend += " and ";
-    search_ToAppend += `title == "${queryFilter.title}"`;
+    search_ToAppend += `title Like "${queryFilter.title}%"`;
   }
   if (queryFilter.category_id !== "") {
     if (search_ToAppend !== "") search_ToAppend += " and ";
@@ -23,6 +23,6 @@ export const shouldSearch = (queryFilter: queryObject) => {
     search_ToAppend += `page == "${queryFilter.page}"`;
   }
   if (search_ToAppend !== "") {
-    return `where ${search_ToAppend}`;
+    return `where ${search_ToAppend} ORDER BY date DESC;`;
   } else return null;
 };

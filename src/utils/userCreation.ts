@@ -5,6 +5,7 @@ import { userInfo } from "os";
 // Function to create a user account based on the provided user data
 
 export const userAccountCreation = async (
+  token: string,
   request: FastifyRequest,
   userData: user_authData
 ) => {
@@ -20,7 +21,7 @@ export const userAccountCreation = async (
     return;
   }
   // needs to get the expoPushToken from the userData
-  const expo_notification_token = request.body as string;
+  const expo_notification_token = token;
   console.log(expo_notification_token, "expo_notification_token");
   console.log("Creating user account...");
   const res = await Orm_db.insertion({

@@ -34,6 +34,7 @@ export interface Token_type {
 }
 
 export interface code_extract {
+  expo_notification_token: string;
   code: string;
 }
 

@@ -7,11 +7,17 @@ export const getUser = (req: FastifyRequest, resp: FastifyReply) => {
   resp.status(200).send({ message: "Valid /user hit" });
 };
 
-export const getUserData = async (req: FastifyRequest<{Body : {expo_notification_token : string}}>, resp: FastifyReply) => {
+interface ExtractUserData {
+  expo_notification_token: string;
+}
+export const getUserData = async (
+  req: FastifyRequest<{ Body: { expo_notification_token: string } }>,
+  resp: FastifyReply
+) => {
   try {
     await req.jwtVerify();
     const userData: user_authData = await req.jwtDecode();
-    await userAccountCreation(req, userData);
+    // await userAccountCreation(token.expo_notification_token as string, req, userData);
     return resp.status(200).send(userData);
   } catch (e) {
     console.log(" ----<> catched Error", e);
