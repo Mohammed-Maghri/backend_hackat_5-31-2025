@@ -10,6 +10,7 @@ import { user_authData } from "../types/userAuthData.js";
 import { shouldSearch } from "../helpers/searchParser.js";
 import { userDatabaseSchema } from "../types/userAuthData.js";
 import { eventBody } from "../types/queryType.js";
+import { sl } from "zod/v4/locales";
 
 export const eventCreation = async (
   req: FastifyRequest,
@@ -148,11 +149,36 @@ export const eventEndPoint = async (req: FastifyRequest, res: FastifyReply) => {
   }
 };
 
+interface eventData {
+  slots: string;
+}
+
 export const eventRegister = async (req: FastifyRequest, res: FastifyReply) => {
   try {
     await req.jwtVerify();
     const user: user_authData = (await req.jwtDecode()) as user_authData; // get user data from JWT
     const eventInfos: registerEventTypes = req.body as registerEventTypes;
+    const eventData: eventData[] = (await Orm_db.selection({
+      server: req.server,
+      colums_name: ["slots"],
+      table_name: "events",
+      command_instraction: `WHERE id = "${eventInfos.eventId}"`,
+    })) as eventData[];
+    console.log("Event data: ", eventData);
+    if (parseInt(eventData[0].slots) <= 0) {
+      return res
+        .status(400)
+        .send({ error: "No slots available for this event" });
+    }
+
+    await Orm_db.update({
+      server: req.server,
+      table_name: "events",
+      colums_name: ["slots"],
+      colums_values: [parseInt(eventData[0].slots) - 1],
+      condition: `WHERE id = "${eventInfos.eventId}"`,
+    });
+
     const CheckingError: unknown = await Orm_db.insertion({
       server: req.server,
       table_name: "registrations",
@@ -178,6 +204,38 @@ export const eventUnregister = async (
     await req.jwtVerify();
     const user: user_authData = (await req.jwtDecode()) as user_authData;
     const eventInfos: registerEventTypes = req.body as registerEventTypes;
+    const checkRegisterValidity = (await Orm_db.selection({
+      server: req.server,
+      table_name: "registrations",
+      colums_name: ["*"],
+      command_instraction: `WHERE user_id = "${user.id}" AND event_id = "${eventInfos.eventId}"`,
+    })) as registerEventTypes[];
+    if (checkRegisterValidity.length === 0) {
+      return res.status(400).send({ error: "You are not registered for this event" });
+    }
+    console.log(" --------- --- ->< ", checkRegisterValidity);
+    
+    const eventData: eventData[] = (await Orm_db.selection({
+      server: req.server,
+      colums_name: ["slots"],
+      table_name: "events",
+      command_instraction: `WHERE id = "${eventInfos.eventId}"`,
+    })) as eventData[];
+
+    if (parseInt(eventData[0].slots) <= 0) {
+      return res
+        .status(400)
+        .send({ error: "No slots available for this event" });
+    }
+
+    await Orm_db.update({
+      server: req.server,
+      table_name: "events",
+      colums_name: ["slots"],
+      colums_values: [parseInt(eventData[0].slots) + 1],
+      condition: `WHERE id = "${eventInfos.eventId}"`,
+    });
+
     const CheckingError: unknown = await Orm_db.deletion({
       server: req.server,
       table_name: "registrations",
@@ -219,10 +277,6 @@ const eventQueryVerify = (eventInfo: eventQueryVerify) => {
     } as objectReturnAdminUpdate;
   } else return null;
 };
-
-// Tomorrow, we will implement the adminEventVerify function
-// Everythin is ready, we just need to implement the query and Insert it with the orm_db
-// and the response
 
 export const adminEventVerify = async (
   req: FastifyRequest,

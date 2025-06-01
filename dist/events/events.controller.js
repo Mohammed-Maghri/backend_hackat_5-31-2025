@@ -132,6 +132,25 @@ export const eventRegister = async (req, res) => {
         await req.jwtVerify();
         const user = (await req.jwtDecode()); // get user data from JWT
         const eventInfos = req.body;
+        const eventData = (await Orm_db.selection({
+            server: req.server,
+            colums_name: ["slots"],
+            table_name: "events",
+            command_instraction: `WHERE id = "${eventInfos.eventId}"`,
+        }));
+        console.log("Event data: ", eventData);
+        if (parseInt(eventData[0].slots) <= 0) {
+            return res
+                .status(400)
+                .send({ error: "No slots available for this event" });
+        }
+        await Orm_db.update({
+            server: req.server,
+            table_name: "events",
+            colums_name: ["slots"],
+            colums_values: [parseInt(eventData[0].slots) - 1],
+            condition: `WHERE id = "${eventInfos.eventId}"`,
+        });
         const CheckingError = await Orm_db.insertion({
             server: req.server,
             table_name: "registrations",
@@ -154,6 +173,34 @@ export const eventUnregister = async (req, res) => {
         await req.jwtVerify();
         const user = (await req.jwtDecode());
         const eventInfos = req.body;
+        const checkRegisterValidity = (await Orm_db.selection({
+            server: req.server,
+            table_name: "registrations",
+            colums_name: ["*"],
+            command_instraction: `WHERE user_id = "${user.id}" AND event_id = "${eventInfos.eventId}"`,
+        }));
+        if (checkRegisterValidity.length === 0) {
+            return res.status(400).send({ error: "You are not registered for this event" });
+        }
+        console.log(" --------- --- ->< ", checkRegisterValidity);
+        const eventData = (await Orm_db.selection({
+            server: req.server,
+            colums_name: ["slots"],
+            table_name: "events",
+            command_instraction: `WHERE id = "${eventInfos.eventId}"`,
+        }));
+        if (parseInt(eventData[0].slots) <= 0) {
+            return res
+                .status(400)
+                .send({ error: "No slots available for this event" });
+        }
+        await Orm_db.update({
+            server: req.server,
+            table_name: "events",
+            colums_name: ["slots"],
+            colums_values: [parseInt(eventData[0].slots) + 1],
+            condition: `WHERE id = "${eventInfos.eventId}"`,
+        });
         const CheckingError = await Orm_db.deletion({
             server: req.server,
             table_name: "registrations",
@@ -197,9 +244,6 @@ const eventQueryVerify = (eventInfo) => {
     else
         return null;
 };
-// Tomorrow, we will implement the adminEventVerify function
-// Everythin is ready, we just need to implement the query and Insert it with the orm_db
-// and the response
 export const adminEventVerify = async (req, res) => {
     try {
         await req.jwtVerify();
