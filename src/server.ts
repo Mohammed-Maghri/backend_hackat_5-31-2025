@@ -10,6 +10,10 @@ const fastify: FastifyInstance = Fastify({
 
 const PORT = parseInt(process.env.PORT || "8000", 10);
 
+await fastify.register(import("@fastify/rate-limit"), {
+  max: 60,
+  timeWindow: "1 minute",
+});
 registerRoutes(fastify);
 
 const serverFunction = () => {
