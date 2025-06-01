@@ -57,10 +57,14 @@ export const eventRoutes = (fastify: FastifyInstance) => {
     url: "/event/admin/unverifiedevents",
     handler: adminListUnverifiedEvents,
   });
-  
+
   fastify.route({
-    method: "GET",
+    method: "POST",
     url: "/event/admin/modify",
+    schema: {
+      headers: zodToJsonSchema(headerEventRegister),
+      body: zodToJsonSchema(bodyEventRegister),
+    },
     handler: adminEventVerify,
   });
 };

@@ -2,10 +2,9 @@ import { Orm_db } from "../orm.js";
 import { shouldSearch } from "../helpers/searchParser.js";
 export const eventCreation = async (req, resp) => {
     const eventData = req.body;
-    console.log("The event Data is -------->", eventData);
     try {
         await req.jwtVerify();
-        const user = (await req.jwtDecode()); // get user data from JWT
+        const user = (await req.jwtDecode());
         const existingEvent = (await Orm_db.selection({
             server: req.server,
             table_name: "events",
@@ -95,18 +94,121 @@ export const eventRegister = async (req, res) => {
         await req.jwtVerify();
         const user = (await req.jwtDecode()); // get user data from JWT
         const eventInfos = req.body;
-        console.log("eventInfos", eventInfos);
-        await Orm_db.insertion({
+        const CheckingError = await Orm_db.insertion({
             server: req.server,
             table_name: "registrations",
             colums_name: ["user_id", "event_id"],
-            colums_values: [user.id, eventInfos.event_id],
+            colums_values: [user.id, eventInfos.eventId.toString()],
             command_instraction: null,
         });
+        if (CheckingError === -1) {
+            return res.status(400).send({ error: "Registration failed" });
+        }
     }
     catch (err) {
         console.error("JWT verification failed:", err);
         return res.status(401).send({ error: "Unauthorized" });
     }
     res.status(200).send({ logs: "eventRegister endpoint hit !" });
+};
+export const eventUnregister = async (req, res) => {
+    try {
+        await req.jwtVerify();
+        const user = (await req.jwtDecode());
+        const eventInfos = req.body;
+        const CheckingError = await Orm_db.deletion({
+            server: req.server,
+            table_name: "registrations",
+            condition: `WHERE user_id = "${user.id}" AND event_id = "${eventInfos.eventId}"`,
+        });
+        if (CheckingError === -1) {
+            return res.status(400).send({ error: "Registration deletion failed" });
+        }
+    }
+    catch (err) {
+        console.error("JWT verification failed:", err);
+        return res.status(401).send({ error: "Unauthorized" });
+    }
+    res.status(200).send({ logs: "eventDelete endpoint hit !" });
+};
+const eventQueryVerify = (eventInfo) => {
+    let colums_append_array = [];
+    let colums_values_append_array = [];
+    if (eventInfo.status !== "") {
+        colums_append_array = [...colums_append_array, "status"];
+        colums_values_append_array.push(eventInfo.status);
+    }
+    if (eventInfo.slots !== "") {
+        colums_append_array = [...colums_append_array, "slots"];
+        colums_values_append_array.push(eventInfo.slots.toString());
+    }
+    if (eventInfo.latitude !== "") {
+        colums_append_array = [...colums_append_array, "latitude"];
+        colums_values_append_array.push(eventInfo.latitude.toString());
+    }
+    if (eventInfo.longitude !== "") {
+        colums_append_array = [...colums_append_array, "longitude"];
+        colums_values_append_array.push(eventInfo.longitude.toString());
+    }
+    if (colums_append_array.length > 0) {
+        return {
+            columns_name: colums_append_array,
+            columns_values: colums_values_append_array,
+        };
+    }
+    else
+        return null;
+};
+// Tomorrow, we will implement the adminEventVerify function
+// Everythin is ready, we just need to implement the query and Insert it with the orm_db
+// and the response
+export const adminEventVerify = async (req, res) => {
+    try {
+        await req.jwtVerify();
+        const user = (await req.jwtDecode());
+        // if (!user.staff) return res.status(403).send({ logs: "Forbidden" });
+        const eventId = req.body;
+        const eventInfos = {
+            slots: req.query.slots || "",
+            status: req.query.status || "",
+            latitude: req.query.latitude || "",
+            longitude: req.query.longitude || "",
+        };
+        const objectVerify = eventQueryVerify(eventInfos);
+        if (!objectVerify)
+            return res.status(400).send({ error: "No valid fields to update" });
+        const result = await Orm_db.update({
+            server: req.server,
+            table_name: "events",
+            colums_name: objectVerify?.columns_name || [],
+            colums_values: objectVerify?.columns_values || [],
+            condition: `WHERE id = "${eventId.eventId}"`,
+        });
+        if (result === -1) {
+            return res.status(400).send({ error: "Event verification failed" });
+        }
+        return res.status(200).send({ logs: "adminEventVerify endpoint hit !" });
+    }
+    catch (err) {
+        console.error("JWT verification failed:", err);
+        return res.status(401).send({ error: "Unauthorized" });
+    }
+};
+export const adminListUnverifiedEvents = async (req, res) => {
+    try {
+        await req.jwtVerify();
+        const user = (await req.jwtDecode());
+        // if (!user.staff) return res.status(403).send({ logs: "Forbidden" });
+        const unverifiedEvents = await Orm_db.selection({
+            server: req.server,
+            table_name: "events",
+            colums_name: ["*"],
+            command_instraction: "WHERE status = 'pending'",
+        });
+        return res.status(200).send({ events: unverifiedEvents });
+    }
+    catch (err) {
+        console.error("Error fetching unverified events:", err);
+        return res.status(500).send({ error: "Failed to fetch unverified events" });
+    }
 };

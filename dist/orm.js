@@ -13,7 +13,7 @@ const deletion = async ({ server, condition, table_name }) => {
         return await server.db.run(`delete from ${table_name} ${condition}`);
     }
     catch (e) {
-        return e;
+        return -1;
     }
 };
 const insertion = async ({ server, table_name, colums_name, colums_values, command_instraction, }) => {
