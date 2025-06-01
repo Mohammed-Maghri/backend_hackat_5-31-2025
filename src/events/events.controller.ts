@@ -86,7 +86,7 @@ export const eventCreation = async (
         status,
         eventData.category_id,
         userDbData[0].id,
-        eventData.slots,
+        0,
         eventData.slots,
         categoryData[0].category_name,
       ],
