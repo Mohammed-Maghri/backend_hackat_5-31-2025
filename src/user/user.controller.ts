@@ -1,6 +1,5 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { user_authData } from "../controllers/auth_intra";
-import { userAccountCreation } from "../utils/userCreation.js";
 
 export const healthCheck = async (req: FastifyRequest, resp: FastifyReply) => {
   try {

@@ -53,5 +53,5 @@ export interface Orm {
     colums_name,
     colums_values,
     command_instraction,
-  }: Orm_insertion) => Promise<unknown> | -1;
+  }: Orm_insertion) => Promise<unknown> ;
 }
