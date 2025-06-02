@@ -18,6 +18,7 @@ export const eventCreation = async (
   req: FastifyRequest,
   resp: FastifyReply
 ) => {
+  console.log("eventCreation called with body:");
   const eventData: eventTypes = req.body as eventTypes;
   try {
     await req.jwtVerify();
@@ -131,6 +132,7 @@ const queryGetEventsWithAvatarPic = async (
 ) => {
   try {
     const search = shouldSearch(queryFilter);
+    console.log("Search query:", search);
     let query = "";
     if (search != null) {
       query = `SELECT 
@@ -172,6 +174,7 @@ export const eventEndPoint = async (req: FastifyRequest, res: FastifyReply) => {
     const user: user_authData = (await req.jwtDecode()) as user_authData; // get user data from JWT
     const geterOject = req.query as queryObject;
     const queryFilter: queryObject = {
+      id: (geterOject.id as string) || "",
       title: (geterOject.title as string) || "",
       category_id: (geterOject.category_id as string) || "",
       start_date: (geterOject.start_date as string) || "",
@@ -562,6 +565,18 @@ export const eventFavoriteList = async (
     return resp.status(401).send({ error: "Error in getting favorite events" });
   }
 };
+
+interface IntraEventQuery {
+  id: string;
+  name: string;
+  description: string;
+  location: string;
+  max_people: number;
+  nbr_subscribers: number;
+  begin_at: string;
+  end_at: string;
+  waitlist: string | null
+}
 
 export const IntraEventGetter = async (
   req: FastifyRequest,

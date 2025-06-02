@@ -1,4 +1,5 @@
 export interface queryObject {
+  id : string ;
   title: string | undefined;
   category_id: string | undefined;
   start_date: string | undefined;
