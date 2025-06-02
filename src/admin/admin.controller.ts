@@ -37,7 +37,7 @@ export const addAdminPriveleges = async (
       return res.status(404).send({ error: "User not found" });
     }
     const userId = userSelection[0].id;
-    if (userSelection[0].staff) {
+    if (userSelection[0].role || userSelection[0].club_staff) {
       return res.status(400).send({ error: "User is already an admin" });
     }
     await Orm_db.update({
