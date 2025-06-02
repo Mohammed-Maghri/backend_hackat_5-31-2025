@@ -147,6 +147,7 @@ export const eventEndPoint = async (req, res) => {
         const user = (await req.jwtDecode()); // get user data from JWT
         const geterOject = req.query;
         const queryFilter = {
+            id: geterOject.id || "",
             title: geterOject.title || "",
             category_id: geterOject.category_id || "",
             start_date: geterOject.start_date || "",

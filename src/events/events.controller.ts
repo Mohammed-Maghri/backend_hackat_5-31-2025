@@ -169,6 +169,7 @@ export const eventEndPoint = async (req: FastifyRequest, res: FastifyReply) => {
     const user: user_authData = (await req.jwtDecode()) as user_authData; // get user data from JWT
     const geterOject = req.query as queryObject;
     const queryFilter: queryObject = {
+      id: (geterOject.id as string) || "",
       title: (geterOject.title as string) || "",
       category_id: (geterOject.category_id as string) || "",
       start_date: (geterOject.start_date as string) || "",

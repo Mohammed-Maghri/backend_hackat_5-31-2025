@@ -59,6 +59,8 @@ export type eventCreationType = z.infer<typeof eventCreationSchema>;
 
 export const eventParamsSchema = z.object({
   category_id: z.number().optional(),
+  id : z
+    .string() ,
   title: z
     .string()
     .optional()
