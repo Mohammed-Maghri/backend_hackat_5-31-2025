@@ -32,7 +32,7 @@ export const adminRoutes = (fastify: FastifyInstance) => {
   // remove category
   fastify.route({
     method: "DELETE",
-    url: "/admin/removeCategory/:id",
+    url: "/admin/removecategory/:id",
     schema: {
       params: zodToJsonSchema(removeCategorySchema),
     },
