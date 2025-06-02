@@ -105,12 +105,15 @@ export const eventCreation = async (
       table_name: "users",
       colums_name: ["expo_notification_token"],
       command_instraction: null,
-    })) as string[];
+    })) as { expo_notification_token: string }[];
 
     if (userTokens.length > 0) {
-      for (const token of userTokens) {
-        console.log("Sending notification to token:", token);
-        await sendPushNotification(token, eventData);
+      for (const user of userTokens) {
+        const token = user.expo_notification_token;
+        if (token) {
+          console.log("Sending notification to token:", token);
+          await sendPushNotification(token, eventData);
+        }
       }
     }
     resp.status(200).send({ message: "/event endpoint hit" });
@@ -573,7 +576,7 @@ export const IntraEventGetter = async (
     });
     console.log(" =====> ", keyToken);
     const eventId = req.params as { campusId: string };
-    console.log(' ===> ' , eventId)
+    console.log(" ===> ", eventId);
     return resp.status(200).send({ logs: "test" });
   } catch (err) {
     console.error("Error in fetching event details:", err);
