@@ -19,6 +19,7 @@ import {
   eventFavoriteList,
   eventAddToFavorite,
   eventDeleteFromFavorite,
+  IntraEventGetter,
 } from "./events.controller.js";
 
 export const eventRoutes = (fastify: FastifyInstance) => {
@@ -120,5 +121,10 @@ export const eventRoutes = (fastify: FastifyInstance) => {
       body: zodToJsonSchema(bodyEventRegister),
     },
     handler: eventDeleteFromFavorite,
+  });
+  fastify.route({
+    method: "GET",
+    url: "/event/intra",
+    handler: IntraEventGetter,
   });
 };

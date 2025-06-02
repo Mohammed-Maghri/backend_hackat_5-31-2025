@@ -1,7 +1,7 @@
 import { eventCreation } from "./events.controller.js";
 import { eventCreationSchema, eventParamsSchema, headerEventRegister, bodyEventRegister, } from "./events.schema.js";
 import zodToJsonSchema from "zod-to-json-schema";
-import { eventEndPoint, eventRegister, eventUnregister, adminListUnverifiedEvents, adminEventVerify, eventAllCategories, eventAllRegistered, eventEndPointRegisterChecker, eventFavoriteList, eventAddToFavorite, eventDeleteFromFavorite, } from "./events.controller.js";
+import { eventEndPoint, eventRegister, eventUnregister, adminListUnverifiedEvents, adminEventVerify, eventAllCategories, eventAllRegistered, eventEndPointRegisterChecker, eventFavoriteList, eventAddToFavorite, eventDeleteFromFavorite, IntraEventGetter, } from "./events.controller.js";
 export const eventRoutes = (fastify) => {
     //getting all the categories of the events
     fastify.route({
@@ -100,5 +100,10 @@ export const eventRoutes = (fastify) => {
             body: zodToJsonSchema(bodyEventRegister),
         },
         handler: eventDeleteFromFavorite,
+    });
+    fastify.route({
+        method: "GET",
+        url: "/event/intra",
+        handler: IntraEventGetter,
     });
 };

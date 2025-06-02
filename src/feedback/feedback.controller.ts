@@ -75,11 +75,6 @@ export const getFeedback = async (req: FastifyRequest, resp: FastifyReply) => {
     rating: number;
     comment: string;
   }[];
-  if (result.length === 0) {
-    return resp
-      .status(404)
-      .send({ message: "No feedback found for this user" });
-  }
   // if the user has feedbacked, return the feedbacks
   resp.send(result);
 };

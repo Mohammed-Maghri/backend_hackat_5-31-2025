@@ -19,6 +19,7 @@ export interface user_authData {
   last_name: string;
   images: string;
   staff: boolean;
+  access_token : string
 }
 
 export const staffUsers: string[] = [

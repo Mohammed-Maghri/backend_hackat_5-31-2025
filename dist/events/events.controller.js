@@ -1,6 +1,7 @@
 import { Orm_db } from "../orm.js";
 import { shouldSearch } from "../helpers/searchParser.js";
 import { sendPushNotification } from "../utils/notificationSender.js";
+import { decrypt_token } from "../helpers/encryption.js";
 export const eventCreation = async (req, resp) => {
     const eventData = req.body;
     try {
@@ -132,9 +133,7 @@ FROM events
 JOIN users ON events.creator_id = users.id
 LEFT JOIN favorite ON favorite.event_id = events.id AND favorite.user_id = ${id}`;
         }
-        console.log("Executing query:", query);
         const searchResult = await server.db.all(query);
-        console.log("Search result ----> :", searchResult);
         return searchResult;
     }
     catch (error) {
@@ -493,5 +492,23 @@ export const eventFavoriteList = async (req, resp) => {
     catch (err) {
         console.error("Error in fetching favorite events:", err);
         return resp.status(401).send({ error: "Error in getting favorite events" });
+    }
+};
+export const IntraEventGetter = async (req, resp) => {
+    try {
+        await req.jwtVerify();
+        const user = (await req.jwtDecode());
+        const keyToken = decrypt_token({
+            message: user.access_token,
+            key: req.server.getEnvs().encryption_key,
+        });
+        console.log(" =====> ", keyToken);
+        const eventId = req.params;
+        console.log(' ===> ', eventId);
+        return resp.status(200).send({ logs: "test" });
+    }
+    catch (err) {
+        console.error("Error in fetching event details:", err);
+        return resp.status(401).send({ error: "Unauthorized" });
     }
 };

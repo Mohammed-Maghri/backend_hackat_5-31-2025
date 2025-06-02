@@ -11,6 +11,8 @@ import { shouldSearch } from "../helpers/searchParser.js";
 import { userDatabaseSchema } from "../types/userAuthData.js";
 import { eventBody } from "../types/queryType.js";
 import { sendPushNotification } from "../utils/notificationSender.js";
+import { decrypt_token } from "../helpers/encryption.js";
+import { Envs } from "../types/Envs.js";
 
 export const eventCreation = async (
   req: FastifyRequest,
@@ -153,9 +155,7 @@ FROM events
 JOIN users ON events.creator_id = users.id
 LEFT JOIN favorite ON favorite.event_id = events.id AND favorite.user_id = ${id}`;
     }
-    console.log("Executing query:", query);
     const searchResult = await server.db.all(query);
-    console.log("Search result ----> :", searchResult);
     return searchResult;
   } catch (error) {
     throw new Error("Error fetching events with avatar pictures");
@@ -557,5 +557,26 @@ export const eventFavoriteList = async (
   } catch (err) {
     console.error("Error in fetching favorite events:", err);
     return resp.status(401).send({ error: "Error in getting favorite events" });
+  }
+};
+
+export const IntraEventGetter = async (
+  req: FastifyRequest,
+  resp: FastifyReply
+) => {
+  try {
+    await req.jwtVerify();
+    const user: user_authData = (await req.jwtDecode()) as user_authData;
+    const keyToken = decrypt_token({
+      message: user.access_token,
+      key: req.server.getEnvs<Envs>().encryption_key as string,
+    });
+    console.log(" =====> ", keyToken);
+    const eventId = req.params as { campusId: string };
+    console.log(' ===> ' , eventId)
+    return resp.status(200).send({ logs: "test" });
+  } catch (err) {
+    console.error("Error in fetching event details:", err);
+    return resp.status(401).send({ error: "Unauthorized" });
   }
 };
