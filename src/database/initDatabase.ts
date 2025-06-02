@@ -80,7 +80,8 @@ export const initDatabase = async () => {
         description: "A weekend dedicated to building innovative AI solutions.",
         location: "Casablanca",
         date: "2025-11-10T09:00:00Z",
-        image_url: "https://example.com/images/hackathon.jpg",
+        image_url:
+          "https://www.istockphoto.com/photo/group-of-people-working-on-computers-in-a-hackathon-gm1212001230-353456789",
         status: "completed",
         category_id: 1,
         slots: 50,
@@ -92,7 +93,8 @@ export const initDatabase = async () => {
         description: "Learn how to stay safe online and protect your data.",
         location: "Rabat",
         date: "2025-10-15T14:00:00Z",
-        image_url: "https://example.com/images/cyber.jpg",
+        image_url:
+          "https://www.istockphoto.com/photo/cybersecurity-training-session-gm1212004567-987654321",
         status: "upcoming",
         category_id: 1,
         slots: 30,
@@ -105,7 +107,7 @@ export const initDatabase = async () => {
           "A full day of fitness classes, health screenings, and nutrition talks.",
         location: "Marrakech",
         date: "2025-09-20T10:00:00Z",
-        image_url: "https://example.com/images/healthfair.jpg",
+        image_url: "https://stock.adobe.com/images/health-fair-event/987654321",
         status: "upcoming",
         category_id: 2,
         slots: 100,
@@ -118,7 +120,8 @@ export const initDatabase = async () => {
           "Join us in raising awareness for mental health through a community walk.",
         location: "Agadir",
         date: "2025-09-25T09:00:00Z",
-        image_url: "https://example.com/images/walk.jpg",
+        image_url:
+          "https://www.istockphoto.com/photo/mental-health-awareness-walk-gm1212006543-321456987",
         status: "upcoming",
         category_id: 2,
         slots: 70,
@@ -130,7 +133,8 @@ export const initDatabase = async () => {
         description: "Empowering women to lead in business and society.",
         location: "Fes",
         date: "2025-10-05T10:00:00Z",
-        image_url: "https://example.com/images/leadership.jpg",
+        image_url:
+          "https://www.gettyimages.com/detail/photo/women-leadership-conference-royalty-free-image/123456789",
         status: "upcoming",
         category_id: 6,
         slots: 40,
@@ -143,7 +147,8 @@ export const initDatabase = async () => {
           "Entrepreneurs pitch their ideas to investors and mentors.",
         location: "Tangier",
         date: "2025-11-01T18:00:00Z",
-        image_url: "https://example.com/images/pitchnight.jpg",
+        image_url:
+          "https://www.freepik.com/free-photo/startup-pitch-night_23456789.htm",
         status: "upcoming",
         category_id: 6,
         slots: 25,
