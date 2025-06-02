@@ -5,9 +5,14 @@ import {
   deleteEvent,
   endEvent,
   updateEvent,
+  removeEventCategory,
 } from "./admin.controller.js";
 import zodToJsonSchema from "zod-to-json-schema";
-import { categoryAddSchema, eventUpdateSchema } from "./admin.schema.js";
+import {
+  categoryAddSchema,
+  eventUpdateSchema,
+  removeCategorySchema,
+} from "./admin.schema.js";
 
 export const adminRoutes = (fastify: FastifyInstance) => {
   fastify.route({
@@ -26,13 +31,13 @@ export const adminRoutes = (fastify: FastifyInstance) => {
   });
   // remove category
   fastify.route({
-    method: "GET",
-    url: "/admin/removeCategory",
+    method: "DELETE",
+    url: "/admin/removeCategory/:id",
     schema: {
-      querystring: zodToJsonSchema(categoryAddSchema),
+      params: zodToJsonSchema(removeCategorySchema),
     },
-    handler: addEventCategory,
-  }); // Assuming you have a handler for removing categories
+    handler: removeEventCategory,
+  });
 
   fastify.route({
     method: "DELETE",

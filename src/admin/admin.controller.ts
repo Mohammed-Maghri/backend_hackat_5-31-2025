@@ -74,40 +74,10 @@ export const addEventCategory = async (
     //  Verify JWT and decode user info
     await req.jwtVerify();
     const user = (await req.jwtDecode()) as user_authData;
-
-    //  Check user in DB
-    const dbUser = (await Orm_db.selection({
-      server: req.server,
-      table_name: "users",
-      colums_name: ["*"],
-      command_instraction: `WHERE login = "${user.login}"`,
-    })) as userDatabaseSchema[];
-
-    let isStaff = false;
-    if (user.login === "abablil") {
-      isStaff = true;
-    }
-
-    if (!isStaff) {
-      if (!dbUser || dbUser.length === 0) {
-        // User NOT in DB → Check JWT staff flag
-        console.log("User not found in DB, checking JWT staff...");
-        if (user.staff === true) {
-          isStaff = true;
-        } else {
-          return res
-            .status(403)
-            .send({ error: "Forbidden: User is not staff" });
-        }
-      } else {
-        // User IS in DB → Only DB staff matters
-        isStaff = dbUser[0].staff === true;
-        if (!isStaff) {
-          return res
-            .status(403)
-            .send({ error: "Forbidden: User is not staff" });
-        }
-      }
+    // refactored to the checkingUserPrivilege function
+    const privilegeCheck = await checkingUserPrivilege(req, res, user);
+    if (privilegeCheck === -1) {
+      return res.status(403).send({ error: "Forbidden" });
     }
     //  Extract and validate category data
     const { category } = req.query as CategoryAddSchemaType;
@@ -262,4 +232,46 @@ export const updateEvent = (req: FastifyRequest, resp: FastifyReply) => {
       console.error("JWT verification failed:", err);
       return resp.status(401).send({ error: "Unauthorized" });
     });
+};
+
+export const removeEventCategory = async (
+  req: FastifyRequest,
+  resp: FastifyReply
+) => {
+  try {
+    // Verify JWT and decode user info
+    await req.jwtVerify();
+    const userData: user_authData = await req.jwtDecode();
+
+    // Check if the user has admin privileges
+    const privilegeCheck = await checkingUserPrivilege(req, resp, userData);
+    if (privilegeCheck === -1) {
+      return resp.status(403).send({ error: "Forbidden" });
+    }
+
+    // Extract category ID from request parameters
+    const { id } = req.params as { id: string };
+    if (!id) {
+      return resp.status(400).send({ error: "Category ID is required" });
+    }
+    // check if category exists
+    const categoryExists = (await Orm_db.selection({
+      server: req.server,
+      table_name: "categories",
+      colums_name: ["id"],
+      command_instraction: `WHERE id = "${id}"`,
+    })) as { id: number }[];
+    if (categoryExists.length === 0) {
+      return resp.status(404).send({ error: "Category not found" });
+    }
+    await Orm_db.deletion({
+      server: req.server,
+      table_name: "categories",
+      condition: `WHERE id = "${id}"`,
+    });
+    return resp.status(200).send({ message: "Category removed successfully" });
+  } catch (error) {
+    console.error("Error removing category:", error);
+    return resp.status(400).send({ error: "Internal Server Error" });
+  }
 };

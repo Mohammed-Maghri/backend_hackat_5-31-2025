@@ -29,3 +29,14 @@ export const eventUpdateSchema = z.object({
   total_slots: z.number().optional(),
 });
 export type EventUpdateSchemaType = z.infer<typeof eventUpdateSchema>;
+
+export const removeCategorySchema = z.object({
+  id: z
+    .number({
+      required_error: "ID is required",
+      invalid_type_error: "ID must be a number",
+    })
+    .int({ message: "ID must be an integer" }),
+});
+
+export type RemoveCategorySchemaType = z.infer<typeof removeCategorySchema>;
