@@ -94,7 +94,7 @@ export const initDatabase = async () => {
         location: "Rabat",
         date: "2025-10-15T14:00:00Z",
         image_url:
-          "https://picsum.photos/1920/1080?random=1",
+          "https://picsum.photos/1920/1080?random=2",
         status: "upcoming",
         category_id: 1,
         slots: 30,
@@ -107,7 +107,7 @@ export const initDatabase = async () => {
           "A full day of fitness classes, health screenings, and nutrition talks.",
         location: "Marrakech",
         date: "2025-09-20T10:00:00Z",
-        image_url: "https://picsum.photos/1920/1080?random=1",
+        image_url: "https://picsum.photos/1920/1080?random=3",
         status: "upcoming",
         category_id: 2,
         slots: 100,
@@ -121,7 +121,7 @@ export const initDatabase = async () => {
         location: "Agadir",
         date: "2025-09-25T09:00:00Z",
         image_url:
-          "https://picsum.photos/1920/1080?random=1",
+          "https://picsum.photos/1920/1080?random=4",
         status: "upcoming",
         category_id: 2,
         slots: 70,
@@ -134,7 +134,7 @@ export const initDatabase = async () => {
         location: "Fes",
         date: "2025-10-05T10:00:00Z",
         image_url:
-          "https://picsum.photos/1920/1080?random=1",
+          "https://picsum.photos/1920/1080?random=5",
         status: "upcoming",
         category_id: 6,
         slots: 40,
@@ -148,7 +148,7 @@ export const initDatabase = async () => {
         location: "Tangier",
         date: "2025-11-01T18:00:00Z",
         image_url:
-          "https://picsum.photos/1920/1080?random=1",
+          "https://picsum.photos/1920/1080?random=6",
         status: "upcoming",
         category_id: 6,
         slots: 25,
