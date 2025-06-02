@@ -32,7 +32,7 @@ export const addAdminPriveleges = async (
       colums_name: ["*"],
       command_instraction: `WHERE login = "${login}"`,
     })) as userDatabaseSchema[];
-    console.log("User Selection:", userSelection);
+    console.log("User Selection------------:", userSelection);
     if (userSelection.length === 0) {
       return res.status(404).send({ error: "User not found" });
     }
