@@ -32,12 +32,12 @@ export const addAdminPriveleges = async (
       colums_name: ["*"],
       command_instraction: `WHERE login = "${login}"`,
     })) as userDatabaseSchema[];
-    console.log("User Selection:", userSelection);
+    console.log("User Selection------------:", userSelection);
     if (userSelection.length === 0) {
       return res.status(404).send({ error: "User not found" });
     }
     const userId = userSelection[0].id;
-    if (userSelection[0].staff) {
+    if (userSelection[0].role || userSelection[0].club_staff) {
       return res.status(400).send({ error: "User is already an admin" });
     }
     await Orm_db.update({

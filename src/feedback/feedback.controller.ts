@@ -45,8 +45,14 @@ export const addFeedback = async (
   const insertingUserFeedback = (await Orm_db.insertion({
     server: request.server,
     table_name: "feedback",
-    colums_name: ["user_id", "event_id", "rating", "comment"],
-    colums_values: [userId, body.event_id, body.rating, body.comment],
+    colums_name: ["user_id", "event_id", "rating", "comment", "login"],
+    colums_values: [
+      userId,
+      body.event_id,
+      body.rating,
+      body.comment,
+      body.login,
+    ],
     command_instraction: null,
   })) as unknown | number;
   if (insertingUserFeedback === -1) {
@@ -98,11 +104,12 @@ export const getFeedbackByEventId = async (
   if (checkEventPresence.length === 0) {
     return reply.status(404).send({ message: "Event not found" });
   }
+  console.log("Event exists, fetching feedbacks...");
   // if the event exists, get the feedbacks
   const eventFeedbacks = (await Orm_db.selection({
     server: req.server,
     table_name: "feedback",
-    colums_name: ["user_id", "event_id", "rating", "comment"],
+    colums_name: ["user_id", "event_id", "rating", "comment", "login"],
     command_instraction: `WHERE event_id = "${eventId}"`,
   })) as string[];
 

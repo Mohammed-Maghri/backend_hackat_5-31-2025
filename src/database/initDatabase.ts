@@ -42,7 +42,7 @@ export const initDatabase = async () => {
         "abablil@student.1337.ma",
         "abablil",
         "https://cdn.intra.42.fr/users/48a65ddc55523358c6ca1264fa6c6009/large_abablil.jpg",
-        0, // role: 0 = user
+        1, // role: 0 = user
         false, // club_staff
         "", // expo_notification_token
       ]
@@ -81,7 +81,7 @@ export const initDatabase = async () => {
         location: "Casablanca",
         date: "2025-11-10T09:00:00Z",
         image_url: "https://example.com/images/hackathon.jpg",
-        status: "upcoming",
+        status: "completed",
         category_id: 1,
         slots: 50,
         latitude: 33.5731,

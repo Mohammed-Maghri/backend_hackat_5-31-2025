@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
-    expo_notification_token TEXT UNIQUE DEFAULT "", -- For push notifications
+    expo_notification_token TEXT DEFAULT "", -- For push notifications
     login TEXT NOT NULL UNIQUE,
     images TEXT, -- JSON array of image URLs 
     club_staff BOOLEAN DEFAULT 0, -- Indicates if the user is a club staff member
@@ -85,6 +85,7 @@ CREATE TABLE IF NOT EXISTS feedback (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
     event_id INTEGER NOT NULL,
+    login TEXT NOT NULL,
     rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
     comment TEXT NOT NULL,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
