@@ -1,11 +1,24 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { user_authData } from "../controllers/auth_intra";
+import { Orm_db } from "../orm";
 
 export const healthCheck = async (req: FastifyRequest, resp: FastifyReply) => {
   try {
     await req.jwtVerify();
     const userData: user_authData = await req.jwtDecode();
     console.log("valid endpoint hit , backend is UP");
+    const expo_notification_token = req.query as string;
+    console.log(expo_notification_token);
+    if (expo_notification_token) {
+      console.log("Expo notification token:", expo_notification_token);
+      const resu = await Orm_db.update({
+        server: req.server,
+        table_name: "users",
+        colums_name: ["expo_notification_token"],
+        colums_values: [expo_notification_token],
+        condition: `where login = '${userData.login}'`,
+      });
+    }
     return resp.status(200).send({ message: "Valid /healthCheck hit" });
   } catch (err) {
     return resp.status(404).send({ error: "Not found" });
