@@ -1,0 +1,16 @@
+export const allowedEventFields = [
+  "title",
+  "description",
+  "location",
+  "date",
+  "image_url",
+  "latitude",
+  "longitude",
+  "status",
+  "category_id",
+  "pictures",
+  "creator_id",
+  "category_name",
+  "slots",
+  "total_slots",
+];

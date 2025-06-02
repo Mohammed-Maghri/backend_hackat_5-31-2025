@@ -366,71 +366,29 @@ export const eventAllRegistered = async (req, resp) => {
             .send({ error: "Error in getting registered events" });
     }
 };
-const QueryEventFavorite = (id) => {
-    // Needs To Work On
-    return ` SELECT favorite.user_id , users.* from 
-    favorite left join users
-    on user_id == users.id 
-   where favorite.user_id == "${id}";`;
-};
-export const eventAddToFavorite = async (req, resp) => {
+export const eventEndPointRegisterChecker = async (req, resp) => {
     try {
         await req.jwtVerify();
-        const user = (await req.jwtDecode());
-        const eventId = req.body;
-        if (!eventId) {
+        const userdata = await req.jwtDecode();
+        const eventInfos = req.params;
+        if (!eventInfos.id) {
             return resp.status(400).send({ error: "Event ID is required" });
         }
-        console.log(" ==> ", user?.id, eventId?.eventId);
-        const result = await Orm_db.insertion({
+        const registrationCheck = (await Orm_db.selection({
             server: req.server,
-            table_name: "favorite",
-            colums_name: ["user_id", "event_id"],
-            colums_values: [user.id, eventId.eventId],
-            command_instraction: null,
-        });
-        if (result === -1) {
-            return resp
-                .status(400)
-                .send({ error: "Failed to add event to favorites" });
+            table_name: "registrations",
+            colums_name: ["*"],
+            command_instraction: `WHERE user_id = "${userdata.id}" AND event_id = "${eventInfos.id}"`,
+        }));
+        if (registrationCheck.length > 0) {
+            return resp.status(200).send({ registered: true });
         }
-        return resp.status(200).send({ message: "Event added to favorites" });
+        else {
+            return resp.status(200).send({ registered: false });
+        }
     }
     catch (err) {
-        console.error("Error in adding event to favorites:", err);
-        return resp
-            .status(401)
-            .send({ error: "Error in adding event to favorites" });
-    }
-};
-export const eventfavoriteDeletion = async (req, resp) => {
-    try {
-        await req.jwtVerify();
-        const user = (await req.jwtDecode());
-        if (!user.staff)
-            return resp.status(403).send({ logs: "Forbidden" });
-        const eventId = req.body;
-        const result = await Orm_db.deletion({
-            server: req.server,
-            table_name: "favorite",
-            condition: `WHERE event_id = "${eventId.eventId}"`,
-        });
-        if (result === -1) {
-            return resp.status(400).send({ error: "Event deletion failed" });
-        }
-        return resp.status(200).send({ logs: "Event deleted successfully" });
-    }
-    catch (err) { }
-};
-export const eventFavoriteList = async (req, resp) => {
-    try {
-        await req.jwtVerify();
-        const user = (await req.jwtDecode());
-        const AllData = await req.server.db.all(QueryEventFavorite(user.id.toString()));
-        return resp.status(200).send(AllData);
-    }
-    catch (err) {
-        console.error("Error in fetching favorite events:", err);
-        return resp.status(401).send({ error: "Error in getting favorite events" });
+        console.error("JWT verification failed Or sql Injection error", err);
+        return resp.status(401).send({ error: "Unauthorized" });
     }
 };

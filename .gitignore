@@ -1,4 +1,4 @@
 node_modules
 js_outfile
-dist/
+dist
 .env

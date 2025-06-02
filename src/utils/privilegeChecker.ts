@@ -30,7 +30,7 @@ export const checkingUserPrivilege = async (
       }
     } else {
       // User IS in DB → Only DB staff matters
-      isStaff = dbUser[0].staff === true;
+      isStaff = dbUser[0].staff === true || dbUser[0].club_staff === true;
       if (!isStaff) {
         return -1;
       }

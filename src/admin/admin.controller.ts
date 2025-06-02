@@ -3,6 +3,8 @@ import { Orm_db } from "../orm.js";
 import { userDatabaseSchema, user_authData } from "../types/userAuthData";
 import { CategoryAddSchemaType } from "./admin.schema.js";
 import { checkingUserPrivilege } from "../utils/privilegeChecker.js";
+import { allowedEventFields } from "../types/allowedEventFields.js";
+import { eventUpdateSchema } from "./admin.schema.js";
 
 // work on the privileges of the admin, test with valid admin user, and test the endpoint
 export const addAdminPriveleges = async (
@@ -165,22 +167,99 @@ export const deleteEvent = async (
       return response.status(403).send({ error: "Forbidden" });
     }
     // Extract event ID from query parameters
-    const { eventId } = request.query as { eventId: string };
-    if (!eventId) {
+    const { id } = request.params as { id: string };
+    if (!id) {
       return response.status(400).send({ error: "Event ID is required" });
     }
     // Delete the event from the database
     const DeleteResult = await Orm_db.deletion({
       server: request.server,
       table_name: "events",
-      condition: `WHERE id = "${eventId}"`,
+      condition: `WHERE id = "${id}"`,
     });
-    if (DeleteResult === -1) {
-      return response.status(500).send({ error: "Failed to delete event" });
-    }
     return response.status(200).send({ message: "Event deleted successfully" });
   } catch (error) {
     console.error("Error deleting event:", error);
     return response.status(400).send({ error: "Internal Server Error" });
   }
+};
+
+export const endEvent = async (req: FastifyRequest, res: FastifyReply) => {
+  try {
+    // Verify JWT and decode user info
+    await req.jwtVerify();
+    const userData: user_authData = await req.jwtDecode();
+
+    // Check if the user has admin privileges
+    const privilegeCheck = await checkingUserPrivilege(req, res, userData);
+    if (privilegeCheck === -1) {
+      return res.status(403).send({ error: "Forbidden" });
+    }
+    // Extract event ID from request parameters
+    const { id } = req.params as { id: string };
+    if (!id) {
+      return res.status(400).send({ error: "Event ID is required" });
+    }
+    // Update the event status to 'ended'
+    const updateResult = await Orm_db.update({
+      server: req.server,
+      table_name: "events",
+      colums_name: ["status"],
+      colums_values: ["completed"],
+      condition: `WHERE id = "${id}"`,
+    });
+    return res.status(200).send({ message: "Event ended successfully" });
+  } catch (error) {
+    console.error("Error ending event:", error);
+    return res.status(400).send({ error: "Error updating event status" });
+  }
+};
+
+export const updateEvent = (req: FastifyRequest, resp: FastifyReply) => {
+  req
+    .jwtVerify()
+    .then(async () => {
+      const userData: user_authData = await req.jwtDecode();
+      const privilegeCheck = await checkingUserPrivilege(req, resp, userData);
+      if (privilegeCheck === -1) {
+        return resp.status(403).send({ error: "Forbidden" });
+      }
+
+      const { id } = req.params as { id: string };
+      if (!id) {
+        return resp.status(400).send({ error: "Event ID is required" });
+      }
+      const body = req.body as Record<string, any>;
+      if (!body || Object.keys(body).length === 0) {
+        return resp
+          .status(400)
+          .send({ error: "No fields provided for update" });
+      }
+      // Filter valid fields
+      const updateFields = Object.entries(body).filter(([key, _]) =>
+        allowedEventFields.includes(key)
+      );
+      if (updateFields.length === 0) {
+        return resp
+          .status(400)
+          .send({ error: "No valid fields provided for update" });
+      }
+      // Extract keys and values
+      const columns = updateFields.map(([key, _]) => key);
+      const values = updateFields.map(([_, value]) => value);
+
+      // Execute the update
+      const updateResult = await Orm_db.update({
+        server: req.server,
+        table_name: "events",
+        colums_name: columns,
+        colums_values: values,
+        condition: `WHERE id = "${id}"`,
+      });
+      return resp.status(200).send({ message: "Event updated successfully" });
+    })
+    .catch((err) => {
+      console.error("JWT verification failed:", err);
+      return resp.status(401).send({ error: "Unauthorized" });
+    });
 };
