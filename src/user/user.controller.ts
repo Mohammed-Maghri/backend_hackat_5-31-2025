@@ -44,7 +44,7 @@ export const getUserData = async (
       return resp.status(404).send({ error: "User not found" });
     }
     // This function returns the Data of the user
-    return resp.status(200).send(userCheck);
+    return resp.status(200).send(userCheck[0]);
   } catch (e) {
     console.log(" ----<> catched Error", e);
     return resp.badRequest("Invalid User !");
