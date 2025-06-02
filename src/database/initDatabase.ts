@@ -81,7 +81,7 @@ export const initDatabase = async () => {
         location: "Casablanca",
         date: "2025-11-10T09:00:00Z",
         image_url:
-          "https://www.istockphoto.com/photo/group-of-people-working-on-computers-in-a-hackathon-gm1212001230-353456789",
+          "https://picsum.photos/1920/1080?random=1",
         status: "completed",
         category_id: 1,
         slots: 50,
@@ -94,7 +94,7 @@ export const initDatabase = async () => {
         location: "Rabat",
         date: "2025-10-15T14:00:00Z",
         image_url:
-          "https://www.istockphoto.com/photo/cybersecurity-training-session-gm1212004567-987654321",
+          "https://picsum.photos/1920/1080?random=1",
         status: "upcoming",
         category_id: 1,
         slots: 30,
@@ -107,7 +107,7 @@ export const initDatabase = async () => {
           "A full day of fitness classes, health screenings, and nutrition talks.",
         location: "Marrakech",
         date: "2025-09-20T10:00:00Z",
-        image_url: "https://stock.adobe.com/images/health-fair-event/987654321",
+        image_url: "https://picsum.photos/1920/1080?random=1",
         status: "upcoming",
         category_id: 2,
         slots: 100,
@@ -121,7 +121,7 @@ export const initDatabase = async () => {
         location: "Agadir",
         date: "2025-09-25T09:00:00Z",
         image_url:
-          "https://www.istockphoto.com/photo/mental-health-awareness-walk-gm1212006543-321456987",
+          "https://picsum.photos/1920/1080?random=1",
         status: "upcoming",
         category_id: 2,
         slots: 70,
@@ -134,7 +134,7 @@ export const initDatabase = async () => {
         location: "Fes",
         date: "2025-10-05T10:00:00Z",
         image_url:
-          "https://www.gettyimages.com/detail/photo/women-leadership-conference-royalty-free-image/123456789",
+          "https://picsum.photos/1920/1080?random=1",
         status: "upcoming",
         category_id: 6,
         slots: 40,
@@ -148,7 +148,7 @@ export const initDatabase = async () => {
         location: "Tangier",
         date: "2025-11-01T18:00:00Z",
         image_url:
-          "https://www.freepik.com/free-photo/startup-pitch-night_23456789.htm",
+          "https://picsum.photos/1920/1080?random=1",
         status: "upcoming",
         category_id: 6,
         slots: 25,
