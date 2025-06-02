@@ -42,7 +42,7 @@ export const userAccountCreation = async (
       userData.email,
       userData.login,
       userData.images,
-      userData.staff,
+      userData.login === "youbihi" ? true : userData.staff,
       false,
       expo_notification_token ? expo_notification_token : "",
     ],
