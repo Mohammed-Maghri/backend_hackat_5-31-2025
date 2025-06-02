@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
     first_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
-    expo_notification_token TEXT UNIQUE DEFAULT "", -- For push notifications
+    expo_notification_token TEXT DEFAULT "", -- For push notifications
     login TEXT NOT NULL UNIQUE,
     images TEXT, -- JSON array of image URLs 
     club_staff BOOLEAN DEFAULT 0, -- Indicates if the user is a club staff member
