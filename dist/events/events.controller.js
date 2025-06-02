@@ -502,10 +502,27 @@ export const IntraEventGetter = async (req, resp) => {
             message: user.access_token,
             key: req.server.getEnvs().encryption_key,
         });
-        console.log(" =====> ", keyToken);
-        const eventId = req.params;
-        console.log(' ===> ', eventId);
-        return resp.status(200).send({ logs: "test" });
+        const eventId = req.query;
+        const dataFetched = await fetch("https://api.intra.42.fr/v2/events?campus_id=16", {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${keyToken}`,
+                "Content-Type": "application/json",
+            },
+        });
+        if (!dataFetched.ok) {
+            console.log("Errr!");
+            return resp
+                .status(500)
+                .send({ error: "Failed to fetch data from Intra API" });
+        }
+        const FullTimeYear = new Date().getFullYear();
+        const FullMonth = new Date().getMonth() + 1;
+        const FullDay = new Date().getDate();
+        const FullDate = `${FullTimeYear}-${FullMonth.toString().padStart(2, "0")}-${FullDay.toString().padStart(2, "0")}`;
+        console.log("FullDate", FullDate);
+        const IntraData = await dataFetched.json();
+        return resp.status(200).send(IntraData);
     }
     catch (err) {
         console.error("Error in fetching event details:", err);
