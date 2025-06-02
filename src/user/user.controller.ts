@@ -1,13 +1,14 @@
 import { FastifyRequest, FastifyReply } from "fastify";
 import { user_authData } from "../controllers/auth_intra";
-import { Orm_db } from "../orm";
+import { Orm_db } from "../orm.js";
 
 export const healthCheck = async (req: FastifyRequest, resp: FastifyReply) => {
   try {
     await req.jwtVerify();
     const userData: user_authData = await req.jwtDecode();
     console.log("valid endpoint hit , backend is UP");
-    const expo_notification_token = req.query as string;
+    console.log(req.raw.url, " query params in health check");
+    const {expo_notification_token} = req.query as {expo_notification_token : string};
     console.log(expo_notification_token);
     if (expo_notification_token) {
       console.log("Expo notification token:", expo_notification_token);

@@ -11,8 +11,6 @@ import { shouldSearch } from "../helpers/searchParser.js";
 import { userDatabaseSchema } from "../types/userAuthData.js";
 import { eventBody } from "../types/queryType.js";
 import { sendPushNotification } from "../utils/notificationSender.js";
-import { RemoteInfo } from "dgram";
-import fastifyCors from "@fastify/cors";
 
 export const eventCreation = async (
   req: FastifyRequest,
@@ -183,7 +181,7 @@ export const eventEndPoint = async (req: FastifyRequest, res: FastifyReply) => {
       req.server,
       user.id.toString()
     );
-    console.log(" =-===> ", events);
+    // console.log(" =-===> ", events);
     return res.status(200).send(events);
   } catch (e) {
     return res.status(400).send({ status: "Error !" });
@@ -206,7 +204,6 @@ export const eventRegister = async (req: FastifyRequest, res: FastifyReply) => {
       table_name: "events",
       command_instraction: `WHERE id = "${eventInfos.eventId}"`,
     })) as eventData[];
-    console.log("Event data:  -----<> ", eventData);
     if (parseInt(eventData[0].slots) === parseInt(eventData[0].total_slots)) {
       return res
         .status(400)
@@ -442,7 +439,7 @@ export const eventEndPointRegisterChecker = async (
   try {
     await req.jwtVerify();
     const userdata: user_authData = await req.jwtDecode();
-    const eventInfos: {id  : number} = req.params as {id : number};
+    const eventInfos: { id: number } = req.params as { id: number };
     if (!eventInfos.id) {
       return resp.status(400).send({ error: "Event ID is required" });
     }
@@ -552,7 +549,7 @@ export const eventFavoriteList = async (
       return resp.status(200).send({ message: "No favorite events found" });
     }
     const addisFavorite = favoriteEvents.map((event) => {
-      const allEvent = {  ...event , is_favorited: true };
+      const allEvent = { ...event, is_favorited: true };
       return allEvent;
     });
 
