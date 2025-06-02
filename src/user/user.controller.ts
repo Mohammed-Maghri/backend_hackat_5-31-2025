@@ -33,8 +33,18 @@ export const getUserData = async (
   try {
     await req.jwtVerify();
     const userData: user_authData = await req.jwtDecode();
+    // check if the user is in database
+    const userCheck = await Orm_db.selection({
+      server: req.server,
+      table_name: "users",
+      colums_name: ["*"],
+      command_instraction: `where login = '${userData.login}'`,
+    }) as user_authData[];
+    if (userCheck.length === 0) {
+      return resp.status(404).send({ error: "User not found" });
+    }
     // This function returns the Data of the user
-    return resp.status(200).send(userData);
+    return resp.status(200).send(userCheck);
   } catch (e) {
     console.log(" ----<> catched Error", e);
     return resp.badRequest("Invalid User !");

@@ -88,9 +88,12 @@ export const eventCreation = async (req, resp) => {
             command_instraction: null,
         }));
         if (userTokens.length > 0) {
-            for (const token of userTokens) {
-                console.log("Sending notification to token:", token);
-                await sendPushNotification(token, eventData);
+            for (const user of userTokens) {
+                const token = user.expo_notification_token;
+                if (token) {
+                    console.log("Sending notification to token:", token);
+                    await sendPushNotification(token, eventData);
+                }
             }
         }
         resp.status(200).send({ message: "/event endpoint hit" });
@@ -504,7 +507,7 @@ export const IntraEventGetter = async (req, resp) => {
         });
         console.log(" =====> ", keyToken);
         const eventId = req.params;
-        console.log(' ===> ', eventId);
+        console.log(" ===> ", eventId);
         return resp.status(200).send({ logs: "test" });
     }
     catch (err) {
