@@ -6,6 +6,7 @@ export const feedbackSchema = z.object({
     .int()
     .positive({ message: "Event ID must be a positive integer" }),
   rating: z.number().int().min(1).max(5),
+  login: z.string({ required_error: "Must have login" }),
   comment: z
     .string()
     .min(4, { message: "Comment should be at least 4 characters" })

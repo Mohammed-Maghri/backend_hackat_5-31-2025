@@ -81,7 +81,7 @@ export const initDatabase = async () => {
         location: "Casablanca",
         date: "2025-11-10T09:00:00Z",
         image_url: "https://example.com/images/hackathon.jpg",
-        status: "upcoming",
+        status: "completed",
         category_id: 1,
         slots: 50,
         latitude: 33.5731,
