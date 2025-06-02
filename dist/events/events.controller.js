@@ -3,6 +3,7 @@ import { shouldSearch } from "../helpers/searchParser.js";
 import { sendPushNotification } from "../utils/notificationSender.js";
 import { decrypt_token } from "../helpers/encryption.js";
 export const eventCreation = async (req, resp) => {
+    console.log("eventCreation called with body:");
     const eventData = req.body;
     try {
         await req.jwtVerify();
@@ -108,6 +109,7 @@ const queryGetEventsWithAvatarPic = async (queryFilter, server, id // default to
 ) => {
     try {
         const search = shouldSearch(queryFilter);
+        console.log("Search query:", search);
         let query = "";
         if (search != null) {
             query = `SELECT 

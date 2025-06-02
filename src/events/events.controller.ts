@@ -18,6 +18,7 @@ export const eventCreation = async (
   req: FastifyRequest,
   resp: FastifyReply
 ) => {
+  console.log("eventCreation called with body:");
   const eventData: eventTypes = req.body as eventTypes;
   try {
     await req.jwtVerify();
@@ -131,6 +132,7 @@ const queryGetEventsWithAvatarPic = async (
 ) => {
   try {
     const search = shouldSearch(queryFilter);
+    console.log("Search query:", search);
     let query = "";
     if (search != null) {
       query = `SELECT 
