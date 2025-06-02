@@ -2,6 +2,7 @@ import { FastifyRequest, FastifyReply } from "fastify";
 import { user_authData } from "../types/userAuthData";
 import { feedbackSchemaType } from "./feedback.schema";
 import { Orm_db } from "../orm.js";
+import { eventTypes } from "../types/eventType";
 
 // function check if the event exists, if so ,checks if the user has already feedbacked the event, if not, inserts the feedback
 export const addFeedback = async (
@@ -16,11 +17,17 @@ export const addFeedback = async (
   const checkEventPresence = (await Orm_db.selection({
     server: request.server,
     table_name: "events",
-    colums_name: ["id"],
+    colums_name: ["*"],
     command_instraction: `WHERE id = "${body.event_id}"`,
-  })) as number[];
+  })) as eventTypes[];
   if (checkEventPresence.length === 0) {
     return reply.notFound("Event not found");
+  }
+  //checking if the event is completed
+  if (checkEventPresence[0].status !== "completed") {
+    return reply
+      .status(400)
+      .send({ message: "Event is not completed yet, cannot feedback" });
   }
   //checking if the user has already feedbacked the event
   const result = (await Orm_db.selection({

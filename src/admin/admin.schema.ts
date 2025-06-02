@@ -11,3 +11,21 @@ export const categoryAddSchema = z.object({
 });
 
 export type CategoryAddSchemaType = z.infer<typeof categoryAddSchema>;
+
+export const eventUpdateSchema = z.object({
+  title: z.string().optional(),
+  description: z.string().optional(),
+  location: z.string().optional(),
+  date: z.string().datetime().optional(),
+  image_url: z.string().url().optional(),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
+  status: z.enum(["upcoming", "completed", "cancelled", "pending"]).optional(),
+  category_id: z.number().optional(),
+  pictures: z.string().optional(),
+  creator_id: z.number().optional(),
+  category_name: z.string().optional(),
+  slots: z.number().optional(),
+  total_slots: z.number().optional(),
+});
+export type EventUpdateSchemaType = z.infer<typeof eventUpdateSchema>;

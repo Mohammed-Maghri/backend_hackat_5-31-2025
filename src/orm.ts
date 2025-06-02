@@ -24,6 +24,8 @@ const update = async ({
     return e;
   }
 };
+
+
 const deletion = async ({ server, condition, table_name }: deletion_data) => {
   try {
     return await server.db.run(`delete from ${table_name} ${condition}`);
