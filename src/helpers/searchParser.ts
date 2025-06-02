@@ -2,9 +2,10 @@ import { queryObject } from "../types/queryType.js";
 
 export const shouldSearch = (queryFilter: queryObject) => {
   let search_ToAppend = "";
-  // if (queryFilter.id !== "") {
-  //   search_ToAppend += `id == "${queryFilter.id}"`;
-  // }
+  if (queryFilter.id !== "") {
+    if (search_ToAppend !== "") search_ToAppend += " and ";
+    search_ToAppend += `id == "${queryFilter.id}"`;
+  }
   if (queryFilter.title !== "") {
     if (search_ToAppend !== "") search_ToAppend += " and ";
     search_ToAppend += `title Like "${queryFilter.title}%"`;
