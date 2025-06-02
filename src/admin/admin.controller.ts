@@ -14,26 +14,17 @@ export const addAdminPriveleges = async (
   try {
     await req.jwtVerify();
     const user = (await req.jwtDecode()) as user_authData;
-    const isPriviliged = (await Orm_db.selection({
-      server: req.server,
-      table_name: "users",
-      colums_name: ["*"],
-      command_instraction: `WHERE login = "${user.login}"`,
-    })) as userDatabaseSchema[];
-    console.log(isPriviliged);
-    if (isPriviliged.length === 0) {
-      console.log("User not found in database");
-      if (!user.staff) {
-        return res.status(403).send({ logs: "Forbidden" });
-      }
-    } else if (!isPriviliged[0].staff) {
-      console.log("User is not an admin");
-      return res.status(403).send({ logs: "Forbidden" });
+    // refactored to the checkingUserPrivilege function
+    const privilegeCheck = await checkingUserPrivilege(req, res, user);
+    if (privilegeCheck === -1) {
+      return res.status(403).send({ error: "Forbidden" });
     }
+    // Extract login from query parameters
     const { login } = req.query;
     if (!login) {
       return res.status(400).send({ error: "Login is required" });
     }
+    // Check if the user exists and is not already an admin
     console.log("Adding admin privileges for user:", login);
     const userSelection = (await Orm_db.selection({
       server: req.server,
@@ -49,7 +40,7 @@ export const addAdminPriveleges = async (
     if (userSelection[0].staff) {
       return res.status(400).send({ error: "User is already an admin" });
     }
-    const getUserId = await Orm_db.update({
+    await Orm_db.update({
       server: req.server,
       table_name: "users",
       colums_name: ["role"],
